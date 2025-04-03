@@ -47,12 +47,13 @@ jobs:
         run: npm run build
 
       - name: Deploy to AWS Amplify
-        uses: aws-actions/amplify-cli-action@master
-        with:
-          amplify_command: publish
-          amplify_env: prod
+        run: |
+          echo "Deploying to AWS Amplify app ${{ secrets.AMPLIFY_APP_ID }}"
+          aws amplify start-job \
+            --app-id ${{ secrets.AMPLIFY_APP_ID }} \
+            --branch-name main \
+            --job-type RELEASE
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: us-east-1
-          AMPLIFY_APP_ID: ${{ secrets.AMPLIFY_APP_ID }}
