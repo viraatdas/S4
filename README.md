@@ -3,6 +3,8 @@
 S4 is a fully-featured semantic search service with multi-tenant support, designed to help organizations integrate powerful semantic search capabilities into their applications.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Frontend: AWS Amplify](https://img.shields.io/badge/Frontend-AWS%20Amplify-orange)](docs/deployment/aws.md)
+[![Backend: AWS ECS](https://img.shields.io/badge/Backend-AWS%20ECS-yellow)](docs/deployment/aws.md)
 
 ## Features
 
