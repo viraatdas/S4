@@ -1,0 +1,450 @@
+/* Modern Auth Container */
+.auth-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+/* Card Wrapper */
+.auth-card-wrapper {
+  padding: 2rem;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Card Styles */
+.auth-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  position: relative;
+  width: 100%;
+  margin: 0;
+}
+
+.card-content {
+  padding: 3rem 2rem;
+  width: 100%;
+}
+
+/* Logo and Title */
+.logo {
+  height: 80px;
+  margin-bottom: 1.5rem;
+}
+
+.app-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.app-description {
+  font-size: 1.1rem;
+  color: #6c757d;
+  margin-bottom: 2rem;
+  max-width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Google Button */
+.login-options {
+  margin-bottom: 3rem;
+}
+
+.google-signin-button {
+  background-color: white;
+  color: #333;
+  border: 1px solid #eaeaea;
+  border-radius: 50px;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin: 0 auto;
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 300px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.google-signin-button:hover {
+  background-color: #f8f9fa;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.google-signin-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+}
+
+.google-signin-button:active {
+  transform: translateY(1px);
+}
+
+.google-icon {
+  font-size: 1.2rem;
+  margin-right: 10px;
+  color: #DB4437;
+}
+
+/* Features Section */
+.features-section {
+  margin-top: 3rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.feature {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 100%);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.feature:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+.feature-icon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.feature-text h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.feature-text p {
+  font-size: 0.9rem;
+  color: #6c757d;
+  line-height: 1.5;
+}
+
+/* Alert Styles */
+.alert {
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.alert-danger {
+  background-color: rgba(220, 53, 69, 0.1);
+  border-color: rgba(220, 53, 69, 0.2);
+  color: #dc3545;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 991.98px) {
+  .auth-card-wrapper {
+    padding: 1rem;
+  }
+  
+  .card-content {
+    padding: 2rem 1.5rem;
+  }
+  
+  .app-title {
+    font-size: 2rem;
+  }
+  
+  .app-description {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .auth-card-wrapper {
+    padding: 0.5rem;
+  }
+  
+  .card-content {
+    padding: 1.5rem 1rem;
+  }
+  
+  .app-title {
+    font-size: 1.8rem;
+  }
+  
+  .features-section {
+    grid-template-columns: 1fr;
+  }
+  
+  .google-signin-button {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
+}
+
+/* Animation for card */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-card {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Login page steps */
+.app-logo {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--primary);
+  background: rgba(16, 163, 127, 0.1);
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.onboarding-steps {
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  padding-top: 20px;
+}
+
+.step-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.step-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: rgba(16, 163, 127, 0.1);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+  flex-shrink: 0;
+}
+
+.step-icon span {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.step-content {
+  flex: 1;
+}
+
+.step-content h6 {
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.fs-8 {
+  font-size: 10px;
+}
+
+.login-info {
+  margin-top: 20px;
+}
+
+.login-info a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.login-info a:hover {
+  text-decoration: underline;
+}
+
+.auth-page {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  padding: 20px;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.login-card {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 40px;
+  width: 100%;
+}
+
+.google-signin-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 12px 20px;
+  background-color: #fff;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.google-signin-button:hover {
+  background-color: #f8f9fa;
+  border-color: #ccc;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.google-icon {
+  margin-right: 12px;
+  color: #4285F4;
+  font-size: 18px;
+}
+
+.app-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.app-description {
+  color: #666;
+  margin-bottom: 30px;
+}
+
+/* Login page steps */
+.app-logo {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--primary);
+  background: rgba(16, 163, 127, 0.1);
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.onboarding-steps {
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  padding-top: 20px;
+}
+
+.step-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.step-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: rgba(16, 163, 127, 0.1);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+  flex-shrink: 0;
+}
+
+.step-icon span {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.step-content {
+  flex: 1;
+}
+
+.step-content h6 {
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.fs-8 {
+  font-size: 10px;
+}
+
+.login-info {
+  margin-top: 20px;
+}
+
+.login-info a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.login-info a:hover {
+  text-decoration: underline;
+}
+
+.simple-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 16px 30px;
+  display: flex;
+  align-items: center;
+  z-index: 10;
+}
+
+.logo-link {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary);
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.logo-link:hover {
+  opacity: 0.85;
+  color: var(--primary);
+} 

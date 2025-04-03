@@ -1,0 +1,185 @@
+/* Admin Portal Styles */
+
+/* Sidebar */
+.admin-sidebar {
+  width: 250px;
+  min-height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.sidebar-item {
+  padding: 12px 15px;
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.3s ease;
+}
+
+.sidebar-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.sidebar-item.active {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border-left: 4px solid #007bff;
+}
+
+.icon-wrapper {
+  width: 24px;
+  text-align: center;
+}
+
+/* Admin content area */
+.admin-content {
+  margin-left: 250px;
+  padding: 20px;
+  min-height: 100vh;
+  background-color: #f5f7fa;
+}
+
+/* Dashboard cards */
+.admin-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.admin-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card {
+  border-left: 4px solid;
+}
+
+.stat-card.primary {
+  border-left-color: #007bff;
+}
+
+.stat-card.success {
+  border-left-color: #28a745;
+}
+
+.stat-card.warning {
+  border-left-color: #ffc107;
+}
+
+.stat-card.danger {
+  border-left-color: #dc3545;
+}
+
+.stat-card .stat-icon {
+  font-size: 2.5rem;
+  opacity: 0.8;
+}
+
+/* Table styles */
+.admin-table {
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.admin-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+/* Forms */
+.admin-form .form-control:focus,
+.admin-form .form-select:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Badges */
+.tenant-badge {
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
+/* Buttons */
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+/* Modals */
+.admin-modal .modal-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.admin-modal .modal-footer {
+  background-color: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+}
+
+/* Admin analytics */
+.analytics-chart-container {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+/* Loading states */
+.admin-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+/* Media queries for responsive sidebar */
+@media (max-width: 768px) {
+  .admin-sidebar {
+    width: 60px;
+    overflow: hidden;
+  }
+  
+  .admin-sidebar .sidebar-item span:not(.icon-wrapper) {
+    display: none;
+  }
+  
+  .admin-content {
+    margin-left: 60px;
+  }
+  
+  .admin-sidebar h4 {
+    display: none;
+  }
+  
+  .admin-sidebar .icon-wrapper {
+    margin-right: 0 !important;
+  }
+  
+  .admin-sidebar:hover {
+    width: 250px;
+  }
+  
+  .admin-sidebar:hover h4 {
+    display: block;
+  }
+  
+  .admin-sidebar:hover .sidebar-item span:not(.icon-wrapper) {
+    display: inline;
+  }
+  
+  .admin-sidebar:hover .icon-wrapper {
+    margin-right: 0.75rem !important;
+  }
+} 

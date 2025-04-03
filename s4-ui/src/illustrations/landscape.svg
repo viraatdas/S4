@@ -1,0 +1,87 @@
+<svg width="1440" height="400" viewBox="0 0 1440 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Sky background -->
+  <rect width="1440" height="400" fill="url(#paint0_linear)" />
+  
+  <!-- Far Mountains -->
+  <path d="M0 240L80 210C160 180 320 120 480 150C640 180 800 300 960 300C1120 300 1280 180 1360 120L1440 60V400H1360C1280 400 1120 400 960 400C800 400 640 400 480 400C320 400 160 400 80 400H0V240Z" fill="#E2E8F9" />
+  
+  <!-- Middle Mountains -->
+  <path d="M0 280L80 260C160 240 320 200 480 220C640 240 800 320 960 320C1120 320 1280 240 1360 200L1440 160V400H1360C1280 400 1120 400 960 400C800 400 640 400 480 400C320 400 160 400 80 400H0V280Z" fill="#D1D9F8" />
+  
+  <!-- Foreground Hills -->
+  <path d="M0 320L80 310C160 300 320 280 480 290C640 300 800 340 960 340C1120 340 1280 300 1360 280L1440 260V400H1360C1280 400 1120 400 960 400C800 400 640 400 480 400C320 400 160 400 80 400H0V320Z" fill="#C4CDF7" />
+  
+  <!-- Hot Air Balloons -->
+  <g>
+    <!-- Balloon 1 -->
+    <ellipse cx="200" cy="100" rx="30" ry="40" fill="#A78BFA" />
+    <path d="M185 140L190 190H210L215 140" stroke="#8B5CF6" stroke-width="2"/>
+    <rect x="190" y="190" width="20" height="10" rx="2" fill="#7C3AED"/>
+  </g>
+  
+  <g>
+    <!-- Balloon 2 -->
+    <ellipse cx="1100" cy="150" rx="35" ry="45" fill="#93C5FD" />
+    <path d="M1085 195L1090 245H1110L1115 195" stroke="#3B82F6" stroke-width="2"/>
+    <rect x="1090" y="245" width="20" height="10" rx="2" fill="#2563EB"/>
+  </g>
+  
+  <!-- Windmill -->
+  <g transform="translate(800, 280)">
+    <rect x="28" y="0" width="4" height="80" fill="#64748B" />
+    <circle cx="30" cy="0" r="15" fill="#F1F5F9" stroke="#64748B" stroke-width="2" />
+    <path d="M30 0L45 -25" stroke="#64748B" stroke-width="3" />
+    <path d="M30 0L5 -15" stroke="#64748B" stroke-width="3" />
+    <path d="M30 0L15 15" stroke="#64748B" stroke-width="3" />
+    <path d="M30 0L55 15" stroke="#64748B" stroke-width="3" />
+  </g>
+  
+  <!-- Lighthouse -->
+  <g transform="translate(400, 240)">
+    <rect x="10" y="0" width="20" height="60" fill="#F9FAFB" stroke="#64748B" stroke-width="1" />
+    <polygon points="0,0 40,0 30,20 10,20" fill="#EF4444" />
+    <rect x="15" y="30" width="10" height="10" fill="#3B82F6" />
+    <rect x="15" y="50" width="10" height="10" fill="#3B82F6" />
+    <rect x="0" y="60" width="40" height="10" fill="#64748B" />
+  </g>
+  
+  <!-- Houses -->
+  <g transform="translate(600, 290)">
+    <rect x="0" y="20" width="50" height="40" fill="#F9FAFB" />
+    <polygon points="0,20 25,0 50,20" fill="#94A3B8" />
+    <rect x="10" y="35" width="10" height="25" fill="#3B82F6" />
+    <rect x="30" y="35" width="10" height="15" fill="#3B82F6" />
+  </g>
+  
+  <g transform="translate(1200, 300)">
+    <rect x="0" y="10" width="60" height="40" fill="#F9FAFB" />
+    <polygon points="0,10 30,-10 60,10" fill="#94A3B8" />
+    <rect x="10" y="25" width="10" height="25" fill="#10B981" />
+    <rect x="40" y="25" width="10" height="25" fill="#10B981" />
+  </g>
+  
+  <g transform="translate(100, 310)">
+    <rect x="0" y="10" width="40" height="30" fill="#F9FAFB" />
+    <polygon points="0,10 20,-5 40,10" fill="#94A3B8" />
+    <rect x="15" y="20" width="10" height="20" fill="#EF4444" />
+  </g>
+  
+  <!-- Bridge -->
+  <g transform="translate(900, 320)">
+    <path d="M0 30C50 0 100 0 150 30" stroke="#64748B" stroke-width="8" fill="none" />
+    <path d="M0 30V60" stroke="#64748B" stroke-width="4" />
+    <path d="M150 30V60" stroke="#64748B" stroke-width="4" />
+    <path d="M30 15V30" stroke="#64748B" stroke-width="2" />
+    <path d="M60 8V30" stroke="#64748B" stroke-width="2" />
+    <path d="M90 5V30" stroke="#64748B" stroke-width="2" />
+    <path d="M120 8V30" stroke="#64748B" stroke-width="2" />
+  </g>
+  
+  <!-- Linear gradient for the sky -->
+  <defs>
+    <linearGradient id="paint0_linear" x1="720" y1="0" x2="720" y2="400" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E0E7FF" />
+      <stop offset="1" stop-color="#F1F5F9" />
+    </linearGradient>
+  </defs>
+</svg> 

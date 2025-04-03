@@ -1,0 +1,43 @@
+# Python files
+__pycache__/
+*.py[cod]
+*.class
+*.so
+.Python
+.pytest_cache/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Local development
+.env
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Local data files
+data/
+*.faiss
+*.pickle
+
+# Deployment scripts
+deploy*.sh
+*.sh
+
+# Frontend code
+s4-ui/

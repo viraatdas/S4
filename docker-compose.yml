@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # Backend service
+  s4-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: s4-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - s4-data:/app/data
+    environment:
+      - S4_S3_BUCKET=${S4_S3_BUCKET:-local-bucket}
+      - S4_S3_REGION=${S4_S3_REGION:-us-east-1}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - S4_ADMIN_API_KEY=${S4_ADMIN_API_KEY:-admin-key-change-me}
+      - S4_API_HOST=0.0.0.0
+      - S4_API_PORT=8000
+      - S4_CORS_ORIGINS=*
+      - S4_DATA_DIR=/app/data
+      - S4_DEBUG=false
+    command: sh -c "s4 init && s4 start --host=0.0.0.0 --port=8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Frontend service
+  s4-ui:
+    build:
+      context: ./s4-ui
+      dockerfile: Dockerfile
+    container_name: s4-ui
+    ports:
+      - "80:80"
+    depends_on:
+      - s4-backend
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000/api
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  s4-data:
+    driver: local 

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>S4 - Google Authentication Test</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .container {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    h1 {
+      color: #6200ea;
+    }
+    button {
+      background-color: #6200ea;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: #5000d6;
+    }
+    pre {
+      background-color: #f5f5f5;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    .error {
+      color: #d32f2f;
+      background-color: #ffebee;
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+    .success {
+      color: #388e3c;
+      background-color: #e8f5e9;
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>S4 - Google Authentication Test</h1>
+  
+  <div class="container">
+    <h2>Authentication Configuration</h2>
+    <p>This page tests the Google authentication with SuperTokens using the following configuration:</p>
+    <pre id="config">
+SuperTokens Core URI: YOUR_SUPERTOKENS_URI
+SuperTokens API Key: YOUR_SUPERTOKENS_API_KEY
+Google Client ID: YOUR_GOOGLE_CLIENT_ID
+Google Client Secret: YOUR_GOOGLE_CLIENT_SECRET
+    </pre>
+  </div>
+
+  <div class="container">
+    <h2>Test Authentication</h2>
+    <p>Click the button below to test Google authentication:</p>
+    <button id="googleAuthBtn">Sign in with Google</button>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    document.getElementById('googleAuthBtn').addEventListener('click', function() {
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = '<p>Redirecting to Google authentication...</p>';
+      
+      // Redirect to Google OAuth authorization URL
+      const googleClientId = 'YOUR_GOOGLE_CLIENT_ID';
+      // Use the exact redirect URI that's configured in Google OAuth settings
+      const redirectUri = encodeURIComponent('http://localhost:3000/auth/callback/google');
+      const scope = encodeURIComponent('openid profile email');
+      
+      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${googleClientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=offline&prompt=consent`;
+      
+      // Redirect to Google auth
+      window.location.href = authUrl;
+    });
+
+    // Check for authentication callback
+    window.onload = function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      const error = urlParams.get('error');
+      
+      const resultDiv = document.getElementById('result');
+      
+      if (code) {
+        resultDiv.innerHTML = '<div class="success">Authentication successful! Authorization code received.</div>';
+        resultDiv.innerHTML += `<pre>Code: ${code}</pre>`;
+      } else if (error) {
+        resultDiv.innerHTML = `<div class="error">Authentication error: ${error}</div>`;
+      }
+    };
+  </script>
+</body>
+</html>

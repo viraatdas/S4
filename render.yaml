@@ -1,0 +1,40 @@
+services:
+  # Backend API service
+  - type: web
+    name: s4-backend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: standard
+    branch: main
+    numInstances: 1
+    healthCheckPath: /health
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: S4_ADMIN_API_KEY
+        generateValue: true
+      - key: S4_API_HOST
+        value: 0.0.0.0
+      - key: S4_API_PORT
+        value: 8000
+      - key: S4_CORS_ORIGINS
+        value: "*"
+      - key: S4_DEBUG
+        value: false
+      - key: S4_DATA_DIR
+        value: /app/data
+
+  # Frontend UI service
+  - type: web
+    name: s4-ui
+    env: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: ./s4-ui
+    plan: standard
+    branch: main
+    numInstances: 1
+    healthCheckPath: /
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://s4-backend.onrender.com/api 
