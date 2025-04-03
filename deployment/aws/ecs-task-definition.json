@@ -1,0 +1,97 @@
+{
+  "family": "s4-backend",
+  "executionRoleArn": "arn:aws:iam::aws:role/ecsTaskExecutionRole",
+  "networkMode": "awsvpc",
+  "containerDefinitions": [
+    {
+      "name": "s4-backend",
+      "image": "s4-backend:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8000,
+          "hostPort": 8000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "S4_S3_BUCKET",
+          "value": "s4-storage-prod"
+        },
+        {
+          "name": "S4_S3_REGION",
+          "value": "us-east-1"
+        },
+        {
+          "name": "S4_API_HOST",
+          "value": "0.0.0.0"
+        },
+        {
+          "name": "S4_API_PORT",
+          "value": "8000"
+        },
+        {
+          "name": "S4_CORS_ORIGINS",
+          "value": "*"
+        },
+        {
+          "name": "S4_DEBUG",
+          "value": "false"
+        },
+        {
+          "name": "S4_DATA_DIR",
+          "value": "/app/data"
+        },
+        {
+          "name": "S4_EMBEDDING_MODEL",
+          "value": "text-embedding-3-small"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "AWS_ACCESS_KEY_ID",
+          "valueFrom": "arn:aws:ssm:us-east-1:aws:parameter/s4/AWS_ACCESS_KEY_ID"
+        },
+        {
+          "name": "AWS_SECRET_ACCESS_KEY",
+          "valueFrom": "arn:aws:ssm:us-east-1:aws:parameter/s4/AWS_SECRET_ACCESS_KEY"
+        },
+        {
+          "name": "OPENAI_API_KEY",
+          "valueFrom": "arn:aws:ssm:us-east-1:aws:parameter/s4/OPENAI_API_KEY"
+        },
+        {
+          "name": "S4_ADMIN_API_KEY",
+          "valueFrom": "arn:aws:ssm:us-east-1:aws:parameter/s4/S4_ADMIN_API_KEY"
+        },
+        {
+          "name": "SUPERTOKENS_CONNECTION_URI",
+          "valueFrom": "arn:aws:ssm:us-east-1:aws:parameter/s4/SUPERTOKENS_CONNECTION_URI"
+        },
+        {
+          "name": "SUPERTOKENS_API_KEY",
+          "valueFrom": "arn:aws:ssm:us-east-1:aws:parameter/s4/SUPERTOKENS_API_KEY"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/s4-backend",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "healthCheck": {
+        "command": ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 60
+      }
+    }
+  ],
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512"
+}
