@@ -11,6 +11,7 @@ import uuid
 import requests
 import random
 import boto3
+import math
 from datetime import datetime
 from fastapi import FastAPI, Depends, HTTPException, Request, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
@@ -485,13 +486,17 @@ DOCS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploaded_do
 os.makedirs(DOCS_DIR, exist_ok=True)
 logging.info(f"Local document storage directory: {DOCS_DIR}")
 
-# AWS S3 Configuration - Commented out for now due to permission issues
-# S3_BUCKET_NAME = "s4-user-documents"
-# S3_REGION = "us-west-2"
+S3_BUCKET_NAME = os.getenv("S4_S3_BUCKET", "s4-storage-prod")
+S3_REGION = os.getenv("S4_S3_REGION", "us-east-1")
 
-# Initialize S3 client - Using local storage instead
-s3_client = None
-logging.info("Using local storage for document uploads")
+import boto3
+s3_client = boto3.client(
+    's3',
+    region_name=S3_REGION,
+    aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+    aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY")
+)
+logging.info(f"Using S3 storage for document uploads: bucket={S3_BUCKET_NAME}, region={S3_REGION}")
 
 # Document upload endpoint
 @app.post("/documents/upload")
@@ -530,19 +535,20 @@ async def upload_document(request: Request):
         # Get user email from query params or form data
         user_email = request.query_params.get("email") or form_data.get("email") or user_email
         
-        # Create user-specific folder in local storage
         user_folder = user_id.replace("@", "-at-").replace(".", "-dot-")
-        user_dir = os.path.join(DOCS_DIR, user_folder)
-        os.makedirs(user_dir, exist_ok=True)
+        s3_key = f"{user_folder}/{doc_id}/{filename}"
         
-        # Create document-specific folder
-        doc_dir = os.path.join(user_dir, doc_id)
-        os.makedirs(doc_dir, exist_ok=True)
-        
-        # Save file to local storage
-        file_path = os.path.join(doc_dir, filename)
-        with open(file_path, "wb") as f:
-            f.write(content)
+        try:
+            s3_client.put_object(
+                Bucket=S3_BUCKET_NAME,
+                Key=s3_key,
+                Body=content,
+                ContentType=file_type
+            )
+            logging.info(f"Uploaded file to S3: {s3_key}")
+        except Exception as e:
+            logging.error(f"Error uploading to S3: {str(e)}")
+            return JSONResponse(status_code=500, content={"error": f"Failed to upload file: {str(e)}"})
         
         # Create URLs for viewing and downloading the file
         file_url = f"/documents/view/{user_folder}/{doc_id}/{filename}"
@@ -562,12 +568,21 @@ async def upload_document(request: Request):
             "download_url": download_url
         }
         
-        # Save metadata
-        metadata_path = os.path.join(doc_dir, "metadata.json")
-        with open(metadata_path, "w") as f:
-            json.dump(metadata, f, indent=2)
+        metadata_json = json.dumps(metadata, indent=2)
+        metadata_key = f"{user_folder}/{doc_id}/metadata.json"
         
-        logging.info(f"Document uploaded successfully: {doc_id}, path: {file_path}")
+        try:
+            s3_client.put_object(
+                Bucket=S3_BUCKET_NAME,
+                Key=metadata_key,
+                Body=metadata_json,
+                ContentType="application/json"
+            )
+        except Exception as e:
+            logging.error(f"Error saving metadata to S3: {str(e)}")
+            return JSONResponse(status_code=500, content={"error": f"Failed to save metadata: {str(e)}"})
+        
+        logging.info(f"Document uploaded successfully: {doc_id}, S3 key: {s3_key}")
         
         return JSONResponse(content={
             "success": True,
@@ -598,40 +613,47 @@ async def get_documents(request: Request):
                 if len(parts) > 1:
                     user_id = parts[1]
         
-        # Create user-specific folder path
         user_folder = user_id.replace("@", "-at-").replace(".", "-dot-")
-        user_dir = os.path.join(DOCS_DIR, user_folder)
         
         documents = []
         
-        # Check if user directory exists
-        if os.path.exists(user_dir) and os.path.isdir(user_dir):
-            # List all document directories
-            for doc_id in os.listdir(user_dir):
-                doc_dir = os.path.join(user_dir, doc_id)
+        try:
+            prefix = f"{user_folder}/"
+            response = s3_client.list_objects_v2(
+                Bucket=S3_BUCKET_NAME,
+                Prefix=prefix,
+                Delimiter="/"
+            )
+            
+            for prefix_obj in response.get('CommonPrefixes', []):
+                doc_prefix = prefix_obj.get('Prefix', '')
+                doc_id = doc_prefix.split('/')[-2] if doc_prefix.endswith('/') else doc_prefix.split('/')[-1]
                 
-                # Skip if not a directory
-                if not os.path.isdir(doc_dir):
-                    continue
-                
-                # Check for metadata file
-                metadata_path = os.path.join(doc_dir, "metadata.json")
-                if os.path.exists(metadata_path):
+                metadata_key = f"{user_folder}/{doc_id}/metadata.json"
+                try:
+                    metadata_obj = s3_client.get_object(
+                        Bucket=S3_BUCKET_NAME,
+                        Key=metadata_key
+                    )
+                    metadata = json.loads(metadata_obj['Body'].read().decode('utf-8'))
+                    
+                    # Add document to the list
+                    documents.append(metadata)
+                except Exception as e:
+                    logging.error(f"Error reading metadata for document {doc_id}: {str(e)}")
+                    
                     try:
-                        with open(metadata_path, "r") as f:
-                            metadata = json.load(f)
+                        doc_response = s3_client.list_objects_v2(
+                            Bucket=S3_BUCKET_NAME,
+                            Prefix=f"{user_folder}/{doc_id}/"
+                        )
                         
-                        # Add document to the list
-                        documents.append(metadata)
-                    except Exception as e:
-                        logging.error(f"Error reading metadata for document {doc_id}: {str(e)}")
-                else:
-                    # If no metadata file, try to create one from the files in the directory
-                    for filename in os.listdir(doc_dir):
-                        if filename != "metadata.json":
-                            file_path = os.path.join(doc_dir, filename)
-                            if os.path.isfile(file_path):
-                                file_size = os.path.getsize(file_path)
+                        for obj in doc_response.get('Contents', []):
+                            key = obj['Key']
+                            filename = key.split('/')[-1]
+                            
+                            if filename != "metadata.json":
+                                file_size = obj['Size']
                                 file_url = f"/documents/view/{user_folder}/{doc_id}/{filename}"
                                 
                                 # Create basic metadata
@@ -641,10 +663,15 @@ async def get_documents(request: Request):
                                     "size": file_size,
                                     "type": "application/octet-stream",
                                     "url": file_url,
-                                    "created_at": datetime.fromtimestamp(os.path.getctime(file_path)).isoformat(),
+                                    "created_at": obj['LastModified'].isoformat() if hasattr(obj['LastModified'], 'isoformat') else str(obj['LastModified']),
                                     "user_id": user_id,
                                     "tokens": file_size // 4  # Rough estimate
                                 })
+                    except Exception as inner_e:
+                        logging.error(f"Error listing files for document {doc_id}: {str(inner_e)}")
+        except Exception as e:
+            logging.error(f"Error listing documents in S3: {str(e)}")
+            return JSONResponse(status_code=500, content={"error": f"Failed to list documents: {str(e)}"})
         
         logging.info(f"Found {len(documents)} documents for user {user_id}")
         return JSONResponse(content=documents)
@@ -669,25 +696,30 @@ async def delete_document(doc_id: str, request: Request):
                 if len(parts) > 1:
                     user_id = parts[1]
         
-        # Create user-specific folder path
         user_folder = user_id.replace("@", "-at-").replace(".", "-dot-")
-        user_dir = os.path.join(DOCS_DIR, user_folder)
-        doc_dir = os.path.join(user_dir, doc_id)
+        prefix = f"{user_folder}/{doc_id}/"
         
-        # Check if document directory exists
-        if os.path.exists(doc_dir) and os.path.isdir(doc_dir):
-            # Delete all files in the document directory
-            for filename in os.listdir(doc_dir):
-                file_path = os.path.join(doc_dir, filename)
-                if os.path.isfile(file_path):
-                    os.remove(file_path)
-                    logging.info(f"Deleted file: {file_path}")
+        try:
+            response = s3_client.list_objects_v2(
+                Bucket=S3_BUCKET_NAME,
+                Prefix=prefix
+            )
             
-            # Remove the document directory
-            os.rmdir(doc_dir)
-            logging.info(f"Deleted document directory: {doc_dir}")
-        else:
-            logging.warning(f"Document directory not found: {doc_dir}")
+            if 'Contents' not in response or len(response['Contents']) == 0:
+                logging.warning(f"Document not found in S3: {prefix}")
+            else:
+                # Delete all files in the document directory
+                for obj in response['Contents']:
+                    s3_client.delete_object(
+                        Bucket=S3_BUCKET_NAME,
+                        Key=obj['Key']
+                    )
+                    logging.info(f"Deleted file from S3: {obj['Key']}")
+                
+                logging.info(f"Deleted document from S3: {prefix}")
+        except Exception as e:
+            logging.error(f"Error deleting document from S3: {str(e)}")
+            return JSONResponse(status_code=500, content={"error": f"Failed to delete document: {str(e)}"})
         
         return JSONResponse(content={
             "success": True,
@@ -701,40 +733,43 @@ async def delete_document(doc_id: str, request: Request):
 @app.get("/documents/view/{user_id}/{doc_id}/{filename}")
 async def view_document(user_id: str, doc_id: str, filename: str):
     try:
-        # Construct the file path
-        file_path = os.path.join(DOCS_DIR, user_id, doc_id, filename)
+        user_folder = user_id.replace("@", "-at-").replace(".", "-dot-")
+        s3_key = f"{user_folder}/{doc_id}/{filename}"
         
-        # Check if file exists
-        if not os.path.exists(file_path) or not os.path.isfile(file_path):
+        try:
+            response = s3_client.get_object(
+                Bucket=S3_BUCKET_NAME,
+                Key=s3_key
+            )
+            
+            # Determine content type based on file extension
+            content_type = "application/octet-stream"  # Default
+            if filename.lower().endswith(".pdf"):
+                content_type = "application/pdf"
+            elif filename.lower().endswith(".txt"):
+                content_type = "text/plain"
+            elif filename.lower().endswith(".docx"):
+                content_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            elif filename.lower().endswith(".md"):
+                content_type = "text/markdown"
+            
+            content = response['Body'].read()
+            
+            # Return file content with appropriate headers for viewing
+            return Response(
+                content=content,
+                media_type=content_type,
+                headers={
+                    "Content-Disposition": f"inline; filename={filename}",
+                    "Access-Control-Allow-Origin": "*"
+                }
+            )
+        except Exception as e:
+            logging.error(f"Error retrieving document from S3: {str(e)}")
             return JSONResponse(
                 status_code=404,
                 content={"error": "Document not found"}
             )
-        
-        # Determine content type based on file extension
-        content_type = "application/octet-stream"  # Default
-        if filename.lower().endswith(".pdf"):
-            content_type = "application/pdf"
-        elif filename.lower().endswith(".txt"):
-            content_type = "text/plain"
-        elif filename.lower().endswith(".docx"):
-            content_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        elif filename.lower().endswith(".md"):
-            content_type = "text/markdown"
-        
-        # Read file content
-        with open(file_path, "rb") as f:
-            content = f.read()
-        
-        # Return file content with appropriate headers for viewing
-        return Response(
-            content=content,
-            media_type=content_type,
-            headers={
-                "Content-Disposition": f"inline; filename={filename}",
-                "Access-Control-Allow-Origin": "*"
-            }
-        )
     except Exception as e:
         logging.error(f"Error viewing document: {str(e)}")
         return JSONResponse(status_code=500, content={"error": str(e)})
@@ -743,29 +778,32 @@ async def view_document(user_id: str, doc_id: str, filename: str):
 @app.get("/documents/download/{user_id}/{doc_id}/{filename}")
 async def download_document(user_id: str, doc_id: str, filename: str):
     try:
-        # Construct the file path
-        file_path = os.path.join(DOCS_DIR, user_id, doc_id, filename)
+        user_folder = user_id.replace("@", "-at-").replace(".", "-dot-")
+        s3_key = f"{user_folder}/{doc_id}/{filename}"
         
-        # Check if file exists
-        if not os.path.exists(file_path) or not os.path.isfile(file_path):
+        try:
+            response = s3_client.get_object(
+                Bucket=S3_BUCKET_NAME,
+                Key=s3_key
+            )
+            
+            content = response['Body'].read()
+            
+            # Return file content with appropriate headers for download
+            return Response(
+                content=content,
+                media_type="application/octet-stream",
+                headers={
+                    "Content-Disposition": f"attachment; filename={filename}",
+                    "Access-Control-Allow-Origin": "*"
+                }
+            )
+        except Exception as e:
+            logging.error(f"Error retrieving document from S3: {str(e)}")
             return JSONResponse(
                 status_code=404,
                 content={"error": "Document not found"}
             )
-        
-        # Read file content
-        with open(file_path, "rb") as f:
-            content = f.read()
-        
-        # Return file content with appropriate headers for download
-        return Response(
-            content=content,
-            media_type="application/octet-stream",
-            headers={
-                "Content-Disposition": f"attachment; filename={filename}",
-                "Access-Control-Allow-Origin": "*"
-            }
-        )
     except Exception as e:
         logging.error(f"Error downloading document: {str(e)}")
         return JSONResponse(status_code=500, content={"error": str(e)})
@@ -806,59 +844,131 @@ async def query_documents(request: Request):
         logging.info(f"Processing document query: {query}")
         logging.info(f"Document IDs filter: {document_ids}")
         
-        # In a real implementation, this would use an embedding model and vector search
-        # For this demo, we'll return a simulated response
+        import openai
+        from openai import OpenAI
         
-        # Get list of user's documents to use as sources
-        user_docs_dir = os.path.join(DOCS_DIR, user_folder)
+        client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        
         available_docs = []
         
-        if os.path.exists(user_docs_dir):
-            # If document_ids is provided, filter to only those documents
-            doc_dirs = [d for d in os.listdir(user_docs_dir) 
-                       if os.path.isdir(os.path.join(user_docs_dir, d)) and 
-                       (not document_ids or d in document_ids)]
+        try:
+            prefix = f"{user_folder}/"
+            response = s3_client.list_objects_v2(
+                Bucket=S3_BUCKET_NAME,
+                Prefix=prefix
+            )
             
-            for doc_id in doc_dirs:
-                doc_dir = os.path.join(user_docs_dir, doc_id)
-                metadata_file = os.path.join(doc_dir, "metadata.json")
-                
-                if os.path.exists(metadata_file):
-                    with open(metadata_file, "r") as f:
-                        metadata = json.load(f)
-                        available_docs.append({
-                            "document_id": doc_id,
-                            "document_name": metadata.get("filename", "unknown.pdf"),
-                            "relevance_score": round(random.uniform(0.7, 0.95), 2)  # Simulated relevance score
-                        })
+            for obj in response.get('Contents', []):
+                key_parts = obj['Key'].split('/')
+                if len(key_parts) >= 2:
+                    doc_id = key_parts[1]
+                    
+                    if any(doc['document_id'] == doc_id for doc in available_docs):
+                        continue
+                    
+                    if not document_ids or doc_id in document_ids:
+                        metadata_key = f"{user_folder}/{doc_id}/metadata.json"
+                        try:
+                            metadata_obj = s3_client.get_object(
+                                Bucket=S3_BUCKET_NAME,
+                                Key=metadata_key
+                            )
+                            metadata = json.loads(metadata_obj['Body'].read().decode('utf-8'))
+                            
+                            file_key = None
+                            for content_obj in response.get('Contents', []):
+                                if content_obj['Key'].startswith(f"{user_folder}/{doc_id}/") and not content_obj['Key'].endswith("metadata.json"):
+                                    file_key = content_obj['Key']
+                                    break
+                            
+                            if file_key:
+                                available_docs.append({
+                                    "document_id": doc_id,
+                                    "document_name": metadata.get("filename", "unknown.pdf"),
+                                    "file_key": file_key
+                                })
+                        except Exception as e:
+                            logging.error(f"Error getting metadata for document {doc_id}: {str(e)}")
+                            continue
+        except Exception as e:
+            logging.error(f"Error listing documents in S3: {str(e)}")
+            return JSONResponse(status_code=500, content={"error": f"Failed to list documents: {str(e)}"})
         
-        # Sort by simulated relevance score
-        available_docs.sort(key=lambda x: x["relevance_score"], reverse=True)
+        import math
         
-        # Limit to top 3 most relevant docs
-        top_docs = available_docs[:3]
-        
-        # Generate a simulated answer based on the query
-        sample_answers = [
-            f"Based on your documents, the answer to '{query}' is that the project timeline has been extended by two weeks due to supply chain issues.",
-            f"According to the documents, regarding '{query}', the quarterly revenue exceeded projections by 12% with strongest growth in the enterprise segment.",
-            f"The documents indicate that for '{query}', the team should focus on improving the user onboarding experience as it has the highest drop-off rate.",
-            f"Your documents suggest that '{query}' relates to the new product launch scheduled for Q3, with initial market testing showing positive results."
-        ]
-        
-        answer = random.choice(sample_answers)
-        
-        # Return response
-        return JSONResponse(
-            status_code=200,
-            content={
-                "answer": answer,
-                "sources": top_docs
-            }
-        )
+        try:
+            query_embedding_response = client.embeddings.create(
+                model=os.getenv("S4_EMBEDDING_MODEL", "text-embedding-3-small"),
+                input=query
+            )
+            query_embedding = query_embedding_response.data[0].embedding
+            
+            doc_embeddings = []
+            for doc in available_docs:
+                try:
+                    file_obj = s3_client.get_object(
+                        Bucket=S3_BUCKET_NAME,
+                        Key=doc["file_key"]
+                    )
+                    content = file_obj['Body'].read().decode('utf-8', errors='replace')
+                    
+                    doc_embedding_response = client.embeddings.create(
+                        model=os.getenv("S4_EMBEDDING_MODEL", "text-embedding-3-small"),
+                        input=content[:8000]  # Limit to first 8000 chars to stay within token limits
+                    )
+                    doc_embedding = doc_embedding_response.data[0].embedding
+                    
+                    similarity = cosine_similarity(query_embedding, doc_embedding)
+                    
+                    doc_embeddings.append({
+                        "document_id": doc["document_id"],
+                        "document_name": doc["document_name"],
+                        "relevance_score": round(similarity, 2),
+                        "content": content[:500]  # Include a preview of the content
+                    })
+                except Exception as e:
+                    logging.error(f"Error processing document {doc['document_id']}: {str(e)}")
+                    continue
+            
+            doc_embeddings.sort(key=lambda x: x["relevance_score"], reverse=True)
+            
+            top_docs = doc_embeddings[:5]
+            
+            context = "\n\n".join([f"Document: {doc['document_name']}\nContent: {doc['content']}" for doc in top_docs])
+            
+            response = client.chat.completions.create(
+                model=os.getenv("S4_DEFAULT_MODEL", "gpt-4o"),
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant that answers questions based on the provided document context."},
+                    {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {query}\n\nPlease answer the question based on the provided context."}
+                ]
+            )
+            
+            answer = response.choices[0].message.content
+            
+            # Return response
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "answer": answer,
+                    "sources": top_docs
+                }
+            )
+        except Exception as e:
+            logging.error(f"Error generating embeddings or searching: {str(e)}")
+            return JSONResponse(status_code=500, content={"error": f"Failed to search documents: {str(e)}"})
     except Exception as e:
         logging.error(f"Error processing document query: {str(e)}")
         return JSONResponse(status_code=500, content={"error": str(e)})
+
+def cosine_similarity(vec1, vec2):
+    """Calculate cosine similarity between two vectors"""
+    dot_product = sum(a * b for a, b in zip(vec1, vec2))
+    magnitude1 = math.sqrt(sum(a * a for a in vec1))
+    magnitude2 = math.sqrt(sum(b * b for b in vec2))
+    if magnitude1 * magnitude2 == 0:
+        return 0
+    return dot_product / (magnitude1 * magnitude2)
 
 # Main function to run the server
 def main():

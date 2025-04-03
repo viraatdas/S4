@@ -6,8 +6,8 @@ import '../styles/AuthPage.css';
  */
 const AuthPage = () => {
   const handleGoogleLogin = () => {
-    // Redirect to our backend's Google OAuth endpoint
-    window.location.href = 'http://localhost:8000/auth/oauth/google';
+    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+    window.location.href = `${apiUrl}/auth/oauth/google`;
   };
 
   return (

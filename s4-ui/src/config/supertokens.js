@@ -3,10 +3,8 @@ import ThirdPartyAuth from "supertokens-auth-react/recipe/thirdparty";
 import Session from "supertokens-auth-react/recipe/session";
 import { ThirdPartyPreBuiltUI } from "supertokens-auth-react/recipe/thirdparty/prebuiltui";
 
-// Hardcoded configuration for now to ensure it works
-const API_DOMAIN = 'http://localhost:8000';
-// Use a fixed domain instead of window.location.origin to ensure it matches Google OAuth settings
-const WEBSITE_DOMAIN = 'http://localhost:3000';
+const API_DOMAIN = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const WEBSITE_DOMAIN = process.env.REACT_APP_WEBSITE_DOMAIN || 'http://localhost:3000';
 
 // SuperTokens connection URI and credentials from environment variables
 const SUPERTOKENS_CONNECTION_URI = process.env.REACT_APP_SUPERTOKENS_CONNECTION_URI || 'http://localhost:3567';
