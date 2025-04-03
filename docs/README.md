@@ -5,7 +5,8 @@ Welcome to the S4 documentation! This guide contains everything you need to depl
 ## Getting Started
 
 - [README](../README.md): Overview of S4, features, and quick start guide
-- [Deployment Guide](DEPLOYMENT.md): Detailed instructions for deploying S4 in various environments
+- [Deployment Guide](deployment/README.md): Detailed instructions for deploying S4 in various environments
+- [AWS Deployment Guide](deployment/aws.md): Specific instructions for AWS deployment
 
 ## User Guides
 
@@ -14,8 +15,10 @@ Welcome to the S4 documentation! This guide contains everything you need to depl
 
 ## Technical Documentation
 
-- [Architecture Overview](ARCHITECTURE.md): Detailed explanation of S4's architecture and components
+- [Architecture Overview](architecture/README.md): Detailed explanation of S4's architecture and components
 - [Troubleshooting Guide](TROUBLESHOOTING.md): Solutions for common issues
+- [Security Guide](security/README.md): Security best practices and guidelines
+- [Monitoring Guide](monitoring.md): How to monitor your S4 deployment
 
 ## Development
 

@@ -27,7 +27,7 @@ S4 is a fully-featured semantic search service with multi-tenant support, design
 
 2. Run the deployment script:
    ```bash
-   ./deploy_docker.sh
+   ./scripts/deploy.sh
    ```
 
 3. Follow the prompts to configure your environment. You'll need:
@@ -65,7 +65,7 @@ S4 supports multiple deployment methods:
 - **AWS ECS/Fargate**: For scalable production deployment
 - **AWS Amplify**: For frontend-only deployment
 
-See the [Deployment Guide](docs/DEPLOYMENT.md) for detailed instructions.
+See the [Deployment Guide](docs/deployment/README.md) for detailed instructions.
 
 ## API Documentation
 
@@ -91,7 +91,7 @@ Access the Admin Portal at `http://localhost/admin/login` with your admin API ke
 
 ## Configuration
 
-S4 can be configured using environment variables. See the [Deployment Guide](docs/DEPLOYMENT.md) for a complete list of configuration options.
+S4 can be configured using environment variables. See the [Deployment Guide](docs/deployment/README.md) for a complete list of configuration options. A template for environment variables is available in the `.env.example` file.
 
 ## Development
 
@@ -129,6 +129,41 @@ Run frontend tests:
 ```bash
 cd s4-ui
 npm test
+```
+
+## Repository Structure
+
+The S4 repository is organized as follows:
+
+```
+/
+├── docs/                    # Documentation
+│   ├── architecture/        # Architecture documentation
+│   ├── deployment/          # Deployment guides
+│   └── security/            # Security documentation
+├── deployment/              # Deployment configurations
+│   ├── aws/                 # AWS-specific configurations
+│   ├── docker/              # Docker configurations
+│   └── heroku/              # Heroku configurations
+├── scripts/                 # Utility scripts
+│   ├── deploy.sh            # Unified deployment script
+│   └── ...                  # Other utility scripts
+├── server/                  # Server implementations
+│   └── simple_server.py     # Simple FastAPI server
+├── s4/                      # Core Python package
+│   ├── api/                 # API endpoints
+│   ├── auth/                # Authentication modules
+│   ├── db/                  # Database models and connections
+│   ├── indexer/             # Document indexing and search
+│   ├── models/              # Data models
+│   ├── service/             # Service layer
+│   └── storage/             # Storage interfaces
+├── s4-ui/                   # Frontend React application
+│   ├── public/              # Static assets
+│   └── src/                 # React source code
+├── tests/                   # Test suite
+│   └── auth/                # Authentication tests
+└── .env.example            # Environment variable template
 ```
 
 ## Contributing

@@ -98,6 +98,7 @@ ipython_config.py
 /data/
 deploy_credentials.sh
 **/aws_credentials.txt
+uploaded_docs/
 
 # Deployment files for S4
 deploy_full.sh
@@ -154,6 +155,7 @@ env.bak/
 venv.bak/
 .env.*
 !.env.example
+!.env.unified.example
 
 # Spyder project settings
 .spyderproject

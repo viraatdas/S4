@@ -1,210 +1,306 @@
-# Monitoring and Scaling S4
+# S4 Monitoring and Scaling Guide
 
-This guide provides information on monitoring and scaling the S4 Semantic Search Service for optimal performance in production environments.
+This guide provides instructions for monitoring, scaling, and maintaining the S4 service in a production environment.
 
 ## Monitoring
 
 ### Key Metrics to Monitor
 
-1. **API Usage**
-   - Request rate and volume
-   - Response times
-   - Error rates by endpoint
-   - Rate limiting triggers
+For effective operation of your S4 service, monitor these key metrics:
 
-2. **Storage Metrics**
-   - S3 bucket usage by tenant
-   - Document count by tenant
-   - Average document size
-   - Upload/download rates
+1. **API Performance Metrics**
+   - Request latency (p50, p95, p99)
+   - Request count/throughput
+   - Error rates (4xx, 5xx)
+   - Endpoint usage patterns
 
-3. **Search Performance**
-   - Query latency
-   - Vector index size
-   - Cache hit rates
-   - Embedding generation time
-
-4. **System Resources**
-   - CPU utilization
+2. **Resource Utilization**
+   - CPU usage
    - Memory usage
-   - Network throughput
-   - Disk I/O (for temporary storage)
+   - Disk space
+   - Network I/O
 
-### Monitoring Tools
+3. **S3 Storage Metrics**
+   - Storage consumption (per tenant)
+   - Request count and latency
+   - Error rates
+
+4. **Tenant-Specific Metrics**
+   - Number of active tenants
+   - API calls per tenant
+   - File count and storage used per tenant
+   - Tenant plan utilization percentage
+
+### Monitoring Solutions
 
 #### AWS CloudWatch (for AWS deployments)
 
-Set up CloudWatch dashboards and alarms for:
-- ECS/EC2 instance metrics
-- S3 bucket metrics
-- Load balancer metrics
-- Lambda function performance (if using serverless components)
+Set up CloudWatch metrics and alarms:
 
-Example CloudWatch alarm for high CPU usage:
 ```bash
+# Example CloudWatch alarm for high CPU usage
 aws cloudwatch put-metric-alarm \
   --alarm-name s4-high-cpu \
-  --alarm-description "Alarm when CPU exceeds 70%" \
-  --metric-name CPUUtilization \
-  --namespace AWS/EC2 \
-  --statistic Average \
-  --period 300 \
-  --threshold 70 \
   --comparison-operator GreaterThanThreshold \
-  --dimensions Name=InstanceId,Value=i-12345678 \
   --evaluation-periods 2 \
-  --alarm-actions arn:aws:sns:us-east-1:123456789012:s4-alerts
+  --metric-name CPUUtilization \
+  --namespace AWS/ECS \
+  --period 300 \
+  --threshold 80 \
+  --alarm-description "Alarm when CPU exceeds 80%" \
+  --alarm-actions arn:aws:sns:us-east-1:123456789012:s4-alerts \
+  --dimensions Name=ServiceName,Value=s4-service Name=ClusterName,Value=s4-cluster
 ```
 
-#### Prometheus and Grafana (for self-hosted)
+#### Google Cloud Monitoring (for GCP deployments)
 
-For self-hosted deployments, use Prometheus for metrics collection and Grafana for visualization:
+Set up Cloud Monitoring dashboards and alerts:
 
-1. Install Prometheus and configure it to scrape the S4 API endpoints
-2. Set up Grafana dashboards to visualize:
-   - System metrics
-   - API performance
-   - Tenant usage
+```bash
+# Example Cloud Monitoring alert policy for high memory usage
+gcloud alpha monitoring policies create \
+  --policy-from-file=policy.yaml
+```
+
+Example policy.yaml:
+```yaml
+combiner: OR
+conditions:
+- conditionThreshold:
+    comparison: COMPARISON_GT
+    duration: 300s
+    filter: resource.type = "cloud_run_revision" AND
+            resource.labels.service_name = "s4-service" AND
+            metric.type = "run.googleapis.com/container/memory/utilizations"
+    thresholdValue: 0.8
+displayName: S4 Service High Memory Utilization
+```
+
+#### Prometheus + Grafana (self-hosted)
+
+For a self-hosted monitoring solution, you can integrate Prometheus and Grafana:
+
+1. Add Prometheus client to the S4 service
+2. Expose metrics endpoints (`/metrics`)
+3. Configure Prometheus to scrape these endpoints
+4. Create Grafana dashboards for visualization
 
 Example Prometheus configuration:
 ```yaml
 scrape_configs:
-  - job_name: 's4'
-    scrape_interval: 15s
+  - job_name: 's4-service'
+    metrics_path: '/metrics'
     static_configs:
-      - targets: ['s4-api:8000']
+      - targets: ['s4-service:8000']
 ```
 
-### Log Management
+## Application Logging
 
-Configure central log collection using:
+Implement structured logging for debugging and monitoring:
+
+```python
+# Example logging pattern in S4 code
+import logging
+import json
+
+logger = logging.getLogger("s4")
+
+def log_event(event_type, tenant_id=None, details=None):
+    """Log a structured event"""
+    log_data = {
+        "event_type": event_type,
+        "timestamp": datetime.utcnow().isoformat(),
+        "tenant_id": tenant_id,
+        "details": details or {}
+    }
+    logger.info(json.dumps(log_data))
+```
+
+Configure log aggregation services such as:
 - AWS CloudWatch Logs
+- Google Cloud Logging
 - ELK Stack (Elasticsearch, Logstash, Kibana)
-- Graylog
+- Datadog
+- Splunk
 
-Ensure logs include:
-- Request IDs for tracing
-- Tenant IDs for isolation
-- Performance timings
-- Error details with stack traces
-
-## Scaling
-
-### Horizontal Scaling
-
-S4 is designed to scale horizontally for increased load:
-
-1. **API Layer**
-   - Add more API containers/instances
-   - Use a load balancer to distribute traffic
-   - Configure auto-scaling based on CPU/memory metrics
-
-2. **Worker Layer**
-   - Scale document processing workers independently
-   - Use a queue (like SQS) for processing tasks
-   - Configure worker auto-scaling based on queue depth
+## Scaling Strategies
 
 ### Vertical Scaling
 
-For specific components that need more resources:
+Increase resources allocated to your service:
 
-1. **Vector Database**
-   - Use larger instance types for FAISS/vector search
-   - Increase memory for better caching
-   - Consider using SSD storage for indices
+- For Elastic Beanstalk:
+  ```bash
+  eb scale s4-production --instances 3
+  ```
 
-2. **API Servers**
-   - Increase CPU for higher concurrency
-   - Increase memory for caching
+- For Google Cloud Run:
+  ```bash
+  gcloud run services update s4-service \
+    --memory 4Gi \
+    --cpu 2
+  ```
 
-### Database Scaling
+### Horizontal Scaling
 
-For the tenant/metadata database:
+Add more instances of your service:
 
-1. **Read Replicas**
-   - Add read replicas for query-heavy workloads
-   - Direct read-only operations to replicas
+- For Elastic Beanstalk:
+  ```bash
+  eb scale s4-production --instances 3
+  ```
 
-2. **Sharding**
-   - For very large deployments, consider sharding by tenant ID
-   - Implement a router to direct queries to the right shard
+- For ECS:
+  ```bash
+  aws ecs update-service \
+    --cluster s4-cluster \
+    --service s4-service \
+    --desired-count 3
+  ```
 
-### S3 Performance
+- For Google Cloud Run:
+  ```bash
+  gcloud run services update s4-service \
+    --max-instances=20
+  ```
 
-Optimize S3 for large-scale document storage:
+### Automatic Scaling
 
-1. **Request Rate**
-   - Use S3 Transfer Acceleration for faster uploads
-   - Implement multipart uploads for large documents
+Configure autoscaling based on metrics:
 
-2. **Cost Optimization**
-   - Configure lifecycle policies for infrequently accessed documents
-   - Consider S3 Intelligent-Tiering for optimal storage costs
+- For Elastic Beanstalk:
+  ```yaml
+  Resources:
+    AWSEBAutoScalingGroup:
+      Type: AWS::AutoScaling::AutoScalingGroup
+      Properties:
+        MinSize: 1
+        MaxSize: 10
+  ```
 
-## High Availability
+- For ECS:
+  ```bash
+  aws application-autoscaling register-scalable-target \
+    --service-namespace ecs \
+    --scalable-dimension ecs:service:DesiredCount \
+    --resource-id service/s4-cluster/s4-service \
+    --min-capacity 1 \
+    --max-capacity 10
+  ```
 
-Ensure high availability with:
+- For Google Cloud Run:
+  ```bash
+  gcloud run services update s4-service \
+    --min-instances=1 \
+    --max-instances=10
+  ```
 
-1. **Multi-AZ Deployment**
-   - Deploy across multiple availability zones
-   - Configure proper failover mechanisms
+## Database/Storage Scaling
 
-2. **Redundancy**
-   - Use redundant load balancers
-   - Deploy multiple API instances
-   - Set up database replication
+### S3 Scaling Considerations
 
-3. **Disaster Recovery**
-   - Regular backups of tenant data and configurations
-   - Document recovery procedures
-   - Test failover scenarios regularly
+S3 scales automatically, but consider:
 
-## Performance Tuning
+1. **Request Rate**: Monitor request rates and implement rate limiting if needed
+2. **Cost Optimization**: Implement lifecycle policies for old data
+3. **Performance**: Use appropriate S3 storage classes based on access patterns
 
-### API Performance
+### Managing Tenant Data Growth
 
-1. **Caching**
-   - Implement Redis for API response caching
-   - Cache common search queries
-   - Cache user authentication tokens
+1. **Implement Storage Quotas**: Enforce storage limits based on tenant plans
+2. **Data Archiving**: Automatically archive old data to cheaper storage
+3. **Data Cleanup**: Implement data retention policies
 
-2. **Rate Limiting**
-   - Configure per-tenant rate limits
-   - Implement exponential backoff for retries
+## Backup and Disaster Recovery
 
-### Search Performance
+### Regular Backups
 
-1. **Index Optimization**
-   - Tune FAISS parameters for your workload
-   - Consider index partitioning for large collections
+Create automated backups of tenant data:
 
-2. **Query Optimization**
-   - Implement query result caching
-   - Use appropriate batch sizes for vector operations
+```bash
+#!/bin/bash
+# Example backup script
+TIMESTAMP=$(date +%Y%m%d%H%M%S)
+BACKUP_BUCKET="s4-backups"
 
-## Cost Optimization
+# Backup tenant configuration data
+aws s3 cp s3://your-s4-bucket/tenants/ s3://$BACKUP_BUCKET/backups/$TIMESTAMP/tenants/ --recursive
 
-1. **Right-sizing**
-   - Monitor resource usage and adjust instance sizes
-   - Scale down during off-peak hours
+# Backup indices
+aws s3 cp s3://your-s4-bucket/indices/ s3://$BACKUP_BUCKET/backups/$TIMESTAMP/indices/ --recursive
+```
 
-2. **Storage Optimization**
-   - Implement document compression
-   - Use appropriate S3 storage tiers
+### Disaster Recovery Plan
 
-3. **API Usage**
-   - Cache frequently accessed data
-   - Batch operations where possible
+1. **Recovery Point Objective (RPO)**: Define maximum acceptable data loss
+2. **Recovery Time Objective (RTO)**: Define maximum acceptable downtime
+3. **Multi-Region Deployment**: Consider deploying to multiple regions for high availability
+4. **Regular Restore Testing**: Test your restore procedures regularly
 
-## Health Checks and Alerts
+## Security Monitoring
 
-1. **Health Endpoints**
-   - `/health` for basic service status
-   - `/health/detailed` for component-level status
+1. **API Authentication Logs**: Monitor failed authentication attempts
+2. **Admin API Logs**: Closely monitor all admin API calls
+3. **AWS CloudTrail** or **GCP Cloud Audit Logs**: Monitor infrastructure changes
+4. **Regular Security Scanning**: Implement automated vulnerability scanning
 
-2. **Alert Configuration**
-   - Set up alerts for error rate spikes
-   - Configure notifications for resource threshold breaches
-   - Monitor tenant quota usage and send proactive alerts
+## Performance Optimization
 
-Remember to test your scaling configurations in a staging environment before applying to production, and gradually increase load to validate your scaling policies. 
+1. **API Rate Limiting**: Implement tenant-specific rate limits
+2. **Caching**: Add caching for frequently accessed data
+3. **Query Optimization**: Optimize S3 queries by implementing efficient prefixes
+4. **Embedding Optimization**: Cache embeddings to reduce OpenAI API costs
+
+## Maintenance Procedures
+
+### Deployment with Zero Downtime
+
+Implement blue-green deployment or rolling updates:
+
+- For Elastic Beanstalk:
+  ```
+  eb deploy --staged
+  ```
+
+- For Google Cloud Run:
+  ```
+  # Google Cloud Run handles this automatically with new revisions
+  ```
+
+### Regular Maintenance Checklist
+
+1. **Dependency Updates**: Regularly update S4 dependencies
+2. **Security Patches**: Apply security patches promptly
+3. **Performance Review**: Review performance metrics monthly
+4. **Cost Review**: Monitor and optimize AWS/GCP costs
+5. **Backup Verification**: Verify backup integrity regularly
+
+## Tenant Management Best Practices
+
+1. **Tenant Onboarding Automation**: Automate tenant provisioning
+2. **Tenant Monitoring**: Create dashboards per tenant
+3. **Communication Plan**: Establish communication channels for maintenance windows
+4. **SLA Monitoring**: Track performance against defined SLAs
+
+## Troubleshooting Common Issues
+
+### API Performance Degradation
+
+1. Check CPU and memory usage
+2. Review logs for error patterns
+3. Check S3 access patterns
+4. Review tenant usage patterns
+
+### Storage Issues
+
+1. Check S3 error logs
+2. Verify tenant storage quotas
+3. Check permissions and IAM roles
+4. Verify encryption settings
+
+### Tenant Isolation Problems
+
+1. Review tenant ID handling in code
+2. Check authorization middleware
+3. Verify S3 key prefixing is working correctly
+4. Test tenant isolation with automated tests 
