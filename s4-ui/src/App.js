@@ -133,7 +133,8 @@ function App() {
   const handleGoogleLogin = () => {
     // Directly redirect to the backend's Google OAuth endpoint
     console.log('Redirecting to Google OAuth endpoint');
-    window.location.href = 'http://localhost:8000/auth/oauth/google';
+    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+    window.location.href = `${apiUrl}/auth/oauth/google`;
   };
   
   // Handle logout
@@ -149,6 +150,11 @@ function App() {
     localStorage.removeItem('adminKey');
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+    
+    // Also sign out from SuperTokens if session exists
+    Session.signOut().catch(error => {
+      console.error('Error signing out from SuperTokens:', error);
+    });
     
     console.log('User logged out successfully');
     

@@ -67,6 +67,11 @@ export const initSuperTokens = () => {
                 token: token.substring(0, 10) + '...',
                 email: context.user.email
               });
+              
+              // Store admin status if applicable
+              if (context.user.isAdmin) {
+                localStorage.setItem('adminKey', 'true');
+              }
             }
             
             // Redirect to dashboard on successful authentication
@@ -88,6 +93,7 @@ export const initSuperTokens = () => {
       })
     ],
     connectionURI: SUPERTOKENS_CONNECTION_URI,
+    apiKey: SUPERTOKENS_API_KEY,
     // Add redirection URL configuration
     getRedirectionURL: async (context) => {
       if (logEvents) {
