@@ -1,4 +1,4 @@
-# S4: Semantic Search Service
+# S4: S3 but like WAYYY better with LLM support
 
 S4 is a fully-featured semantic search service with multi-tenant support, designed to help organizations integrate powerful semantic search capabilities into their applications.
 
