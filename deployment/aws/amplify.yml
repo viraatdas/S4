@@ -4,6 +4,7 @@ frontend:
     preBuild:
       commands:
         - npm ci
+        - cp .env.production .env
     build:
       commands:
         - npm run build
@@ -14,3 +15,12 @@ frontend:
   cache:
     paths:
       - node_modules/**/*
+  customHeaders:
+    - pattern: '**/*'
+      headers:
+        - key: 'Strict-Transport-Security'
+          value: 'max-age=31536000; includeSubDomains'
+        - key: 'X-Content-Type-Options'
+          value: 'nosniff'
+        - key: 'X-XSS-Protection'
+          value: '1; mode=block'

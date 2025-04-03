@@ -24,8 +24,8 @@ const LoginPage = () => {
     const state = Math.random().toString(36).substring(2, 15);
     localStorage.setItem('oauth_state', state);
     
-    // Set redirect_uri to our frontend callback URL
-    const redirectUri = encodeURIComponent('http://localhost:3000/auth/callback/google');
+    const websiteDomain = process.env.REACT_APP_WEBSITE_DOMAIN || 'http://localhost:3000';
+    const redirectUri = encodeURIComponent(`${websiteDomain}/auth/callback/google`);
     
     // Redirect directly to Google's OAuth endpoint with all required parameters
     const redirectUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=email%20profile%20openid&state=${state}&access_type=offline&prompt=consent`;
@@ -125,4 +125,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage; 
+export default LoginPage;  

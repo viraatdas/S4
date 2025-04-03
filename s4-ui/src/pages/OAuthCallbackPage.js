@@ -79,7 +79,8 @@ const OAuthCallbackPage = () => {
         // Use Google's token endpoint directly instead of going through our backend
         // This avoids potential CORS issues and simplifies the flow
         const tokenUrl = 'https://oauth2.googleapis.com/token';
-        const redirectUri = 'http://localhost:3000/auth/callback/google';
+        const websiteDomain = process.env.REACT_APP_WEBSITE_DOMAIN || 'http://localhost:3000';
+        const redirectUri = `${websiteDomain}/auth/callback/google`;
         
         const tokenData = new URLSearchParams();
         tokenData.append('client_id', GOOGLE_CLIENT_ID);
@@ -227,4 +228,4 @@ const OAuthCallbackPage = () => {
   );
 };
 
-export default OAuthCallbackPage; 
+export default OAuthCallbackPage;  
