@@ -75,10 +75,25 @@ jobs:
       - name: Deploy to AWS Amplify
         run: |
           echo "Deploying to AWS Amplify app ${{ secrets.AMPLIFY_APP_ID }}"
-          aws amplify start-job \
+          # Create a deployment for the app (for apps not connected to a repository)
+          DEPLOYMENT_ID=$(aws amplify create-deployment \
             --app-id ${{ secrets.AMPLIFY_APP_ID }} \
             --branch-name main \
-            --job-type RELEASE
+            --output text \
+            --query 'jobId')
+          
+          echo "Created deployment with ID: $DEPLOYMENT_ID"
+          
+          # Create a zip file of the build directory
+          cd s4-ui/build && zip -r ../../build.zip . && cd ../..
+          
+          # Start the deployment with the build artifacts
+          aws amplify start-deployment \
+            --app-id ${{ secrets.AMPLIFY_APP_ID }} \
+            --branch-name main \
+            --job-id $DEPLOYMENT_ID \
+            --source-url file://build.zip \
+            --source-url-type ZIPPED
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
