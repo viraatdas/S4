@@ -6,22 +6,22 @@ import API from '../services/api';
 
 const ApiPage = () => {
   const baseUrl = window.location.origin.replace('3000', '8000');
-  const [downloadExample, setDownloadExample] = useState({
-    userId: 'user123',
-    docId: 'doc-123',
-    filename: 'example.pdf'
-  });
+  // const [downloadExample, setDownloadExample] = useState({
+  //   userId: 'user123',
+  //   docId: 'doc-123',
+  //   filename: 'example.pdf'
+  // });
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
     alert('Copied to clipboard!');
   };
   
-  const handleDownload = (userId, docId, filename) => {
-    API.downloadDocument(userId, docId, filename)
-      .then(() => console.log('Download initiated successfully'))
-      .catch(err => console.error('Download error:', err));
-  };
+  // const handleDownload = (userId, docId, filename) => {
+  //   API.downloadDocument(userId, docId, filename)
+  //     .then(() => console.log('Download initiated successfully'))
+  //     .catch(err => console.error('Download error:', err));
+  // };
 
   return (
     <>

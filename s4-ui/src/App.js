@@ -13,7 +13,7 @@ import PaymentPage from './pages/PaymentPage';
 import OAuthCallbackPage from './pages/OAuthCallbackPage';
 import ApiPage from './pages/ApiPage';
 import API from './services/api';
-import ApiService from './services/api-service';
+// import ApiService from './services/api-service';
 import './styles/index.css';
 
 // Import SuperTokens
@@ -266,4 +266,4 @@ function App() {
   );
 }
 
-export default App; 
+export default App;  

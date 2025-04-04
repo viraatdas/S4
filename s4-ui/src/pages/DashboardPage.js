@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Container, Row, Col, Card, Button, Form, InputGroup, Table, Spinner, Alert, Modal, Badge } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Form, /* InputGroup, */ Table, Spinner, Alert, Modal, Badge } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import '../styles/delete-animation.css';
 import {
-  FaSearch, FaUpload, FaTrash, FaFile, FaFolder, 
-  FaChartLine, FaDatabase, FaCloudUploadAlt, FaFilePdf,
+  FaSearch, /* FaUpload, */ FaTrash, FaFile, FaFolder, 
+  /* FaChartLine, */ FaDatabase, FaCloudUploadAlt, FaFilePdf,
   FaFileWord, FaFileAlt, FaVideo, FaMusic, FaFileCode,
-  FaClock, FaInfoCircle, FaExclamationTriangle, FaDownload,
-  FaEye
+  FaClock, /* FaInfoCircle, */ FaExclamationTriangle, FaDownload
+  /* FaEye */
 } from 'react-icons/fa';
 import API from '../services/api';
 import Navbar from '../components/Navbar';
@@ -17,7 +17,7 @@ import FeatureTour from '../components/FeatureTour';
 
 const DashboardPage = () => {
   const { user } = useContext(AuthContext);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [documents, setDocuments] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -730,4 +730,4 @@ const DashboardPage = () => {
   );
 };
 
-export default DashboardPage; 
+export default DashboardPage;    
