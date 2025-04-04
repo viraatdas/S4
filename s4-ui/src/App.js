@@ -12,6 +12,7 @@ import AdminDashboardPage from './pages/AdminDashboardPage';
 import PaymentPage from './pages/PaymentPage';
 import OAuthCallbackPage from './pages/OAuthCallbackPage';
 import ApiPage from './pages/ApiPage';
+import NotFoundPage from './pages/NotFoundPage';
 import API from './services/api';
 // import ApiService from './services/api-service';
 import './styles/index.css';
@@ -259,8 +260,8 @@ function App() {
             </AdminRoute>
           } />
           
-          {/* Redirect unknown routes to home */}
-          <Route path="*" element={<Navigate to="/" />} />
+          {/* Redirect unknown routes to the NotFoundPage */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </AuthContext.Provider>
   );
