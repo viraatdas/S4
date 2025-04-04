@@ -55,7 +55,8 @@ SUPERTOKENS_API_KEY = os.environ.get("SUPERTOKENS_API_KEY", "")
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
 # Default redirect URI, but we'll also accept the one provided in the request
-REDIRECT_URI = os.environ.get("REDIRECT_URI", "http://localhost:3000/auth/callback/google")
+WEBSITE_DOMAIN = os.environ.get("WEBSITE_DOMAIN", "http://localhost:3000")
+REDIRECT_URI = os.environ.get("REDIRECT_URI", f"{WEBSITE_DOMAIN}/auth/callback/google")
 
 # SuperTokens middleware to handle auth requests
 class SuperTokensMiddleware(BaseHTTPMiddleware):
@@ -319,14 +320,14 @@ async def google_callback(code: str = None, error: str = None, state: str = None
     if error:
         logging.error(f"Google OAuth error: {error}")
         return RedirectResponse(
-            url="http://localhost:3000/auth/callback/google?error=" + error,
+            url=f"{WEBSITE_DOMAIN}/auth/callback/google?error=" + error,
             headers=headers
         )
     
     if not code:
         logging.error("No authorization code provided")
         return RedirectResponse(
-            url="http://localhost:3000/auth/callback/google?error=no_code",
+            url=f"{WEBSITE_DOMAIN}/auth/callback/google?error=no_code",
             headers=headers
         )
     
@@ -339,7 +340,7 @@ async def google_callback(code: str = None, error: str = None, state: str = None
         if not redirect_uri:
             # For direct browser access, use the backend URL
             if request and request.url and str(request.url).startswith("http://localhost:8000"):
-                redirect_uri = "http://localhost:8000/auth/callback/google"
+                redirect_uri = f"{os.environ.get('API_URL', 'http://localhost:8000')}/auth/callback/google"
             else:
                 # Default for requests coming from the frontend
                 redirect_uri = REDIRECT_URI
@@ -452,7 +453,7 @@ async def google_callback(code: str = None, error: str = None, state: str = None
             return JSONResponse(content=response_data, headers=headers)
         
         # For browser redirects, redirect to dashboard with token and email
-        redirect_url = f"http://localhost:3000/auth/callback/google?token={session_token}&email={user_info['email']}"
+        redirect_url = f"{WEBSITE_DOMAIN}/auth/callback/google?token={session_token}&email={user_info['email']}"
         
         logging.info(f"Authentication successful for user: {user_info['email']}")
         logging.info(f"Token generated: {session_token}")
@@ -473,7 +474,7 @@ async def google_callback(code: str = None, error: str = None, state: str = None
             return JSONResponse(content=error_response, headers=headers)
         else:
             return RedirectResponse(
-                url=f"http://localhost:3000/auth/callback/google?error={str(e)}",
+                url=f"{WEBSITE_DOMAIN}/auth/callback/google?error={str(e)}",
                 headers=headers
             )
 
