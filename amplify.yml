@@ -1,0 +1,27 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - cd s4-ui
+        - npm ci
+    build:
+      commands:
+        - cd s4-ui
+        - echo "REACT_APP_API_URL=$BACKEND_API_URL" >> .env.production
+        - echo "REACT_APP_SUPERTOKENS_CONNECTION_URI=$SUPERTOKENS_CONNECTION_URI" >> .env.production
+        - echo "REACT_APP_SUPERTOKENS_API_KEY=$SUPERTOKENS_API_KEY" >> .env.production
+        - echo "REACT_APP_GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID" >> .env.production
+        - npm run build
+  artifacts:
+    baseDirectory: s4-ui/build
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - s4-ui/node_modules/**/*
+  customHeaders:
+    - pattern: '**/*'
+      headers:
+        - key: 'Cache-Control'
+          value: 'max-age=0, no-cache, no-store, must-revalidate'

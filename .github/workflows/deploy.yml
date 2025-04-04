@@ -1,0 +1,97 @@
+name: Deploy S4 Application
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 's4-ui/package-lock.json'
+
+      - name: Install dependencies
+        run: |
+          cd s4-ui
+          npm ci
+
+      - name: Build frontend
+        run: |
+          cd s4-ui
+          npm run build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Deploy to AWS Amplify
+        run: |
+          aws amplify start-deployment \
+            --app-id d1vw5wgmtfl4b5 \
+            --branch-name main \
+            --source-url s4-ui/build
+
+  deploy-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: s4-backend
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+      - name: Deploy to AWS App Runner
+        run: |
+          aws apprunner update-service \
+            --service-arn ${{ secrets.APPRUNNER_SERVICE_ARN }} \
+            --source-configuration "ImageRepository={ImageIdentifier=${{ steps.login-ecr.outputs.registry }}/s4-backend:${{ github.sha }},ImageRepositoryType=ECR,ImageConfiguration={Port=8080}}" \
+            || aws apprunner create-service \
+               --service-name s4-backend \
+               --source-configuration "ImageRepository={ImageIdentifier=${{ steps.login-ecr.outputs.registry }}/s4-backend:${{ github.sha }},ImageRepositoryType=ECR,ImageConfiguration={Port=8080}}" \
+               --instance-configuration "Cpu=1 vCPU,Memory=2 GB" \
+               --auto-scaling-configuration-arn ${{ secrets.APPRUNNER_AUTOSCALING_CONFIG_ARN || 'default' }} \
+               --health-check-configuration "Protocol=HTTP,Path=/health,Interval=10,Timeout=5,HealthyThreshold=1,UnhealthyThreshold=5" \
+               --tags Key=Project,Value=S4
+
+      - name: Update Amplify environment variables with backend URL
+        run: |
+          # Get the App Runner service URL
+          SERVICE_URL=$(aws apprunner describe-service --service-arn ${{ secrets.APPRUNNER_SERVICE_ARN }} --query "Service.ServiceUrl" --output text || \
+                        aws apprunner describe-service --service-name s4-backend --query "Service.ServiceUrl" --output text)
+          
+          # Update Amplify environment variables
+          aws amplify update-branch \
+            --app-id d1vw5wgmtfl4b5 \
+            --branch-name main \
+            --environment-variables "BACKEND_API_URL=https://${SERVICE_URL},SUPERTOKENS_CONNECTION_URI=${{ secrets.SUPERTOKENS_CONNECTION_URI }},SUPERTOKENS_API_KEY=${{ secrets.SUPERTOKENS_API_KEY }},GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}"
