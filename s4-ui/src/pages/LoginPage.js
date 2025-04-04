@@ -24,7 +24,11 @@ const LoginPage = () => {
     const state = Math.random().toString(36).substring(2, 15);
     localStorage.setItem('oauth_state', state);
     
+    // Get the website domain from environment variables with fallback to localhost
+    // Make sure REACT_APP_WEBSITE_DOMAIN is set in your Amplify environment variables
     const websiteDomain = process.env.REACT_APP_WEBSITE_DOMAIN || 'http://localhost:3000';
+    console.log('Using website domain:', websiteDomain);
+    
     const redirectUri = encodeURIComponent(`${websiteDomain}/auth/callback/google`);
     
     // Redirect directly to Google's OAuth endpoint with all required parameters

@@ -12,6 +12,7 @@ frontend:
         - echo "REACT_APP_SUPERTOKENS_CONNECTION_URI=$SUPERTOKENS_CONNECTION_URI" >> .env.production
         - echo "REACT_APP_SUPERTOKENS_API_KEY=$SUPERTOKENS_API_KEY" >> .env.production
         - echo "REACT_APP_GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID" >> .env.production
+        - echo "REACT_APP_WEBSITE_DOMAIN=$WEBSITE_DOMAIN" >> .env.production
         - npm run build
   artifacts:
     baseDirectory: s4-ui/build
@@ -25,3 +26,7 @@ frontend:
       headers:
         - key: 'Cache-Control'
           value: 'max-age=0, no-cache, no-store, must-revalidate'
+  redirects:
+    - source: '</^[^.]+$|\\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|woff2|ttf|map|json)$)([^.]+$)/'
+      target: '/index.html'
+      status: '200'
