@@ -5,8 +5,8 @@ S4 is a fully-featured semantic search service with multi-tenant support, design
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Frontend: AWS Amplify](https://img.shields.io/badge/Frontend-AWS%20Amplify-orange)](docs/deployment/aws.md)
 [![Backend: AWS ECS](https://img.shields.io/badge/Backend-AWS%20ECS-yellow)](docs/deployment/aws.md)
-[![Frontend Build](https://img.shields.io/badge/Frontend%20Build-passing-brightgreen)](https://d3g0apb64xkgiu.amplifyapp.com)
-[![Backend Build](https://img.shields.io/badge/Backend%20Build-passing-brightgreen)](https://api.s4-storage.com)
+[![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)](docs/deployment/aws.md)
+[![Deploy Status](https://img.shields.io/badge/Deploy-Success-brightgreen)](docs/deployment/aws.md)
 
 ## Features
 
@@ -21,7 +21,7 @@ S4 is a fully-featured semantic search service with multi-tenant support, design
 
 ## Quick Start
 
-### Using Docker Compose (Local Development)
+### Local Development
 
 1. Clone the repository:
    ```bash
@@ -29,20 +29,28 @@ S4 is a fully-featured semantic search service with multi-tenant support, design
    cd s4
    ```
 
-2. Run the deployment script:
+2. Set up your environment variables:
    ```bash
-   ./scripts/deploy.sh
+   cp .env.example .env
+   # Edit .env with your configuration
    ```
 
-3. Follow the prompts to configure your environment. You'll need:
-   - OpenAI API key
-   - AWS credentials (optional for local development)
-   - S3 bucket details (optional for local development)
+3. Start the backend server:
+   ```bash
+   cd server
+   python server.py
+   ```
 
-4. Access the application:
+4. In a separate terminal, start the frontend:
+   ```bash
+   cd s4-ui
+   npm install  # Only needed first time
+   npm start
+   ```
+
+5. Access the application:
    - Backend API: http://localhost:8000
-   - Frontend UI: http://localhost
-   - Admin Portal: http://localhost/admin/login
+   - Frontend UI: http://localhost:3000
 
 ## Architecture
 
@@ -64,10 +72,10 @@ S4 consists of two main components:
 
 S4 supports multiple deployment methods:
 
-- **Docker Compose**: For local development and testing
-- **AWS Elastic Beanstalk**: For production deployment
-- **AWS ECS/Fargate**: For scalable production deployment
-- **AWS Amplify**: For frontend-only deployment
+- **AWS Amplify**: For frontend deployment
+- **AWS ECS**: For backend deployment
+- **AWS Elastic Beanstalk**: Alternative production deployment
+- **Docker**: For containerized deployment
 
 See the [Deployment Guide](docs/deployment/README.md) for detailed instructions.
 
@@ -104,9 +112,16 @@ S4 can be configured using environment variables. See the [Deployment Guide](doc
 The backend is built with Python FastAPI:
 
 ```bash
-cd s4
+cd server
 pip install -r requirements.txt
-python -m uvicorn app.main:app --reload
+python server.py
+```
+
+You can also run the server with hot reloading during development:
+
+```bash
+cd server
+python -m uvicorn server:app --reload
 ```
 
 ### Frontend Development
