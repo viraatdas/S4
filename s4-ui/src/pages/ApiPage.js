@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Container, Card, Row, Col, Table, Badge, Button, Form, InputGroup, Spinner, Alert } from 'react-bootstrap';
 import { FaCode, FaDownload, FaUpload, FaTrash, FaList, FaSearch, FaRobot, FaQuestion } from 'react-icons/fa';
 import Navbar from '../components/Navbar';
-import API from '../services/api';
+// import API from '../services/api';
 
 const ApiPage = () => {
   const baseUrl = window.location.origin.replace('3000', '8000');
