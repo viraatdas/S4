@@ -11,6 +11,7 @@ from botocore.exceptions import ClientError
 
 from s4 import config
 from s4.exceptions import StorageError, FileNotFoundError
+from s4.embedding.document_processor import DocumentProcessor
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +24,8 @@ class S3Storage:
         aws_secret_access_key: Optional[str] = None,
         aws_region: Optional[str] = None,
         bucket_name: Optional[str] = None,
-        tenant_id: Optional[str] = None
+        tenant_id: Optional[str] = None,
+        document_processor: Optional[DocumentProcessor] = None
     ):
         """Initialize S3 client with AWS credentials.
         
@@ -33,6 +35,7 @@ class S3Storage:
             aws_region: Optional AWS region
             bucket_name: Optional S3 bucket name
             tenant_id: Optional tenant ID for multi-tenant mode
+            document_processor: Optional document processor for text extraction and embeddings
         """
         # Use provided credentials or fall back to config
         self.aws_access_key_id = aws_access_key_id or config.AWS_ACCESS_KEY_ID
@@ -40,6 +43,8 @@ class S3Storage:
         self.aws_region = aws_region or config.AWS_REGION
         self.bucket_name = bucket_name or config.S3_BUCKET_NAME
         self.tenant_id = tenant_id
+        
+        self.document_processor = document_processor or DocumentProcessor()
         
         # Initialize S3 client
         self.s3 = boto3.client(
@@ -106,7 +111,8 @@ class S3Storage:
         file_obj: Union[BinaryIO, bytes, str], 
         file_name: Optional[str] = None,
         content_type: Optional[str] = None,
-        metadata: Optional[Dict[str, str]] = None
+        metadata: Optional[Dict[str, str]] = None,
+        generate_embedding: bool = True
     ) -> str:
         """Upload a file to S3.
         
@@ -115,6 +121,7 @@ class S3Storage:
             file_name: Optional name for the file (will be used in S3 key)
             content_type: Optional MIME type
             metadata: Optional metadata dictionary
+            generate_embedding: Whether to generate embeddings for the file
             
         Returns:
             str: The file ID (not the full S3 key)
@@ -122,7 +129,7 @@ class S3Storage:
         if isinstance(file_obj, str):
             # Assume it's a file path
             with open(file_obj, 'rb') as f:
-                return self.upload_file(f, file_name or file_obj.split('/')[-1], content_type, metadata)
+                return self.upload_file(f, file_name or file_obj.split('/')[-1], content_type, metadata, generate_embedding)
         
         # Generate a unique ID for the file
         file_id = str(uuid.uuid4())
@@ -158,17 +165,51 @@ class S3Storage:
         if 'Metadata' not in upload_args:
             upload_args['Metadata'] = {}
         upload_args['Metadata']['uploaded-at'] = timestamp
-            
-        # Handle different types of file objects
-        if isinstance(file_obj, bytes):
-            upload_args['Body'] = io.BytesIO(file_obj)
+        
+        if generate_embedding:
+            if isinstance(file_obj, bytes):
+                file_content_copy = io.BytesIO(file_obj)
+                upload_args['Body'] = io.BytesIO(file_obj)
+            else:
+                current_pos = file_obj.tell()
+                file_obj.seek(0)
+                content = file_obj.read()
+                file_content_copy = io.BytesIO(content)
+                upload_args['Body'] = io.BytesIO(content)
+                file_obj.seek(current_pos)
         else:
-            # Assume it's a file-like object
-            upload_args['Body'] = file_obj
+            if isinstance(file_obj, bytes):
+                upload_args['Body'] = io.BytesIO(file_obj)
+            else:
+                # Assume it's a file-like object
+                upload_args['Body'] = file_obj
             
         try:
             self.s3.upload_fileobj(**upload_args)
             logger.info(f"Uploaded file to S3: {key}")
+            
+            if generate_embedding:
+                try:
+                    doc_info = self.document_processor.process_document(
+                        file_content_copy, 
+                        file_name or "unknown", 
+                        content_type
+                    )
+                    
+                    embedding_metadata = {
+                        "indexed": "true",
+                        "embedding_model": config.EMBEDDING_MODEL,
+                        "tokens": str(doc_info.get("tokens", 0)),
+                        "indexed_at": datetime.utcnow().isoformat()
+                    }
+                    
+                    self.update_file_metadata(file_id, embedding_metadata)
+                    
+                    logger.info(f"Generated embeddings for file: {key}")
+                except Exception as e:
+                    logger.error(f"Error generating embeddings for file {key}: {e}")
+                    self.update_file_metadata(file_id, {"indexed": "false", "indexing_error": str(e)})
+            
             return file_id
         except ClientError as e:
             logger.error(f"Error uploading file to S3: {e}")
@@ -341,4 +382,4 @@ class S3Storage:
             return True
         except ClientError as e:
             logger.error(f"Error updating file metadata in S3: {e}")
-            raise StorageError(f"Error updating file metadata: {str(e)}") 
+            raise StorageError(f"Error updating file metadata: {str(e)}")  

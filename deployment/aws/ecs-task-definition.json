@@ -1,12 +1,12 @@
 {
   "family": "s4-backend",
-  "executionRoleArn": "arn:aws:iam::aws:role/ecsTaskExecutionRole",
-  "taskRoleArn": "arn:aws:iam::aws:role/ecsTaskExecutionRole",
+  "executionRoleArn": "${AWS_EXECUTION_ROLE_ARN}",
+  "taskRoleArn": "${AWS_TASK_ROLE_ARN}",
   "networkMode": "awsvpc",
   "containerDefinitions": [
     {
       "name": "s4-backend",
-      "image": "s4-backend:latest",
+      "image": "${ECR_REPOSITORY_URI}:latest",
       "essential": true,
       "portMappings": [
         {
@@ -47,32 +47,56 @@
         {
           "name": "S4_EMBEDDING_MODEL",
           "value": "text-embedding-3-small"
+        },
+        {
+          "name": "S4_DISABLE_API_AUTH",
+          "value": "false"
+        },
+        {
+          "name": "AWS_DEFAULT_REGION",
+          "value": "us-east-1"
+        },
+        {
+          "name": "API_DOMAIN",
+          "value": "https://aws-s-app-yctj7l81.devinapps.com"
+        },
+        {
+          "name": "WEBSITE_DOMAIN",
+          "value": "https://aws-s-app-yctj7l81.devinapps.com"
         }
       ],
       "secrets": [
         {
           "name": "AWS_ACCESS_KEY_ID",
-          "valueFrom": "arn:aws:ssm:us-east-1:aws:parameter/s4/AWS_ACCESS_KEY_ID"
+          "valueFrom": "${AWS_SSM_PATH_PREFIX}/AWS_ACCESS_KEY_ID"
         },
         {
           "name": "AWS_SECRET_ACCESS_KEY",
-          "valueFrom": "arn:aws:ssm:us-east-1:aws:parameter/s4/AWS_SECRET_ACCESS_KEY"
+          "valueFrom": "${AWS_SSM_PATH_PREFIX}/AWS_SECRET_ACCESS_KEY"
         },
         {
           "name": "OPENAI_API_KEY",
-          "valueFrom": "arn:aws:ssm:us-east-1:aws:parameter/s4/OPENAI_API_KEY"
+          "valueFrom": "${AWS_SSM_PATH_PREFIX}/OPENAI_API_KEY"
         },
         {
           "name": "S4_ADMIN_API_KEY",
-          "valueFrom": "arn:aws:ssm:us-east-1:aws:parameter/s4/S4_ADMIN_API_KEY"
+          "valueFrom": "${AWS_SSM_PATH_PREFIX}/S4_ADMIN_API_KEY"
         },
         {
           "name": "SUPERTOKENS_CONNECTION_URI",
-          "valueFrom": "arn:aws:ssm:us-east-1:aws:parameter/s4/SUPERTOKENS_CONNECTION_URI"
+          "valueFrom": "${AWS_SSM_PATH_PREFIX}/SUPERTOKENS_CONNECTION_URI"
         },
         {
           "name": "SUPERTOKENS_API_KEY",
-          "valueFrom": "arn:aws:ssm:us-east-1:aws:parameter/s4/SUPERTOKENS_API_KEY"
+          "valueFrom": "${AWS_SSM_PATH_PREFIX}/SUPERTOKENS_API_KEY"
+        },
+        {
+          "name": "GOOGLE_CLIENT_ID",
+          "valueFrom": "${AWS_SSM_PATH_PREFIX}/GOOGLE_CLIENT_ID"
+        },
+        {
+          "name": "GOOGLE_CLIENT_SECRET",
+          "valueFrom": "${AWS_SSM_PATH_PREFIX}/GOOGLE_CLIENT_SECRET"
         }
       ],
       "logConfiguration": {
@@ -93,6 +117,6 @@
     }
   ],
   "requiresCompatibilities": ["FARGATE"],
-  "cpu": "256",
-  "memory": "512"
+  "cpu": "512",
+  "memory": "1024"
 }
