@@ -76,104 +76,17 @@ const OAuthCallbackPage = () => {
       try {
         console.log('OAuthCallbackPage: Exchanging code for token');
         
-        // Use Google's token endpoint directly instead of going through our backend
-        // This avoids potential CORS issues and simplifies the flow
-        const tokenUrl = 'https://oauth2.googleapis.com/token';
-        const websiteDomain = process.env.REACT_APP_WEBSITE_DOMAIN || 'http://localhost:3000';
-        const redirectUri = `${websiteDomain}/auth/callback/google`;
+        // Forward the authorization code to our backend
+        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+        const backendUrl = `${apiUrl}/auth/callback/google?code=${code}`;
         
-        const tokenData = new URLSearchParams();
-        tokenData.append('client_id', GOOGLE_CLIENT_ID);
-        tokenData.append('client_secret', GOOGLE_CLIENT_SECRET);
-        tokenData.append('code', code);
-        tokenData.append('redirect_uri', redirectUri);
-        tokenData.append('grant_type', 'authorization_code');
-        
-        console.log('OAuthCallbackPage: Token request data:', {
-          client_id: GOOGLE_CLIENT_ID,
-          code: code.substring(0, 10) + '...',
-          redirect_uri: redirectUri,
-          grant_type: 'authorization_code'
+        console.log('OAuthCallbackPage: Forwarding code to backend:', {
+          backendUrl: backendUrl.replace(code, code.substring(0, 10) + '...')
         });
         
-        const tokenResponse = await fetch(tokenUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          },
-          body: tokenData
-        });
-        
-        if (!tokenResponse.ok) {
-          const errorText = await tokenResponse.text();
-          console.error('Token exchange error:', errorText);
-          throw new Error(`Token exchange failed: ${tokenResponse.status}`);
-        }
-        
-        const tokenJson = await tokenResponse.json();
-        console.log('OAuthCallbackPage: Received tokens:', Object.keys(tokenJson));
-        
-        // Get user info from Google
-        const userInfoUrl = 'https://www.googleapis.com/oauth2/v3/userinfo';
-        const userResponse = await fetch(userInfoUrl, {
-          headers: {
-            'Authorization': `Bearer ${tokenJson.access_token}`
-          }
-        });
-        
-        if (!userResponse.ok) {
-          const errorText = await userResponse.text();
-          console.error('User info error:', errorText);
-          throw new Error(`Failed to get user info: ${userResponse.status}`);
-        }
-        
-        const userInfo = await userResponse.json();
-        console.log('OAuthCallbackPage: User info:', {
-          sub: userInfo.sub,
-          email: userInfo.email,
-          name: userInfo.name
-        });
-        
-        // Create a session token
-        const sessionToken = `st-${userInfo.sub}-${Date.now()}`;
-        
-        // Prepare response data with user information from Google
-        const data = {
-          success: true,
-          token: sessionToken,
-          email: userInfo.email,
-          user: {
-            id: userInfo.sub,
-            email: userInfo.email,
-            name: userInfo.name || '',
-            picture: userInfo.picture || ''
-          }
-        };
-        
-        console.log('OAuthCallbackPage: Authentication data:', data);
-        
-        // Store tokens
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('email', data.email);
-        
-        // Store user data if available
-        if (data.user) {
-          localStorage.setItem('user', JSON.stringify(data.user));
-        }
-        
-        if (handleOAuthSuccess) {
-          handleOAuthSuccess({
-            email: data.email,
-            id: data.user?.id || data.token.split('-')[1] || 'user-id',
-            name: data.user?.name,
-            picture: data.user?.picture
-          }, data.token);
-        }
-        
-        console.log('OAuthCallbackPage: Successfully authenticated with Google');
-        
-        // Redirect to dashboard
-        navigate('/dashboard', { replace: true });
+        // Redirect to the backend URL with the code
+        window.location.href = backendUrl;
+        return; // Stop execution here as we're redirecting
       } catch (err) {
         console.error('OAuthCallbackPage: Google OAuth callback error:', err);
         

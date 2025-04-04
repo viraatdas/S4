@@ -36,7 +36,7 @@ app = FastAPI(
 # Add CORS middleware with proper configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Frontend URL
+    allow_origins=[os.environ.get("WEBSITE_DOMAIN", "http://localhost:3000")],  # Frontend URL from environment
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=[
@@ -63,11 +63,14 @@ class SuperTokensMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         path = request.url.path
         
+        # Get website domain from environment variable
+        website_domain = os.environ.get("WEBSITE_DOMAIN", "http://localhost:3000")
+        
         # Handle OPTIONS requests for CORS preflight
         if request.method == "OPTIONS":
             logging.info(f"Handling OPTIONS request for: {path}")
             headers = {
-                "Access-Control-Allow-Origin": "http://localhost:3000",
+                "Access-Control-Allow-Origin": website_domain,
                 "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
                 "Access-Control-Allow-Headers": "Content-Type, Authorization, X-API-Key, Access-Control-Allow-Origin, Access-Control-Allow-Credentials, fdi-version, st-auth-mode, rid, anti-csrf, accept, origin, referer, user-agent",
                 "Access-Control-Allow-Credentials": "true",
@@ -82,7 +85,7 @@ class SuperTokensMiddleware(BaseHTTPMiddleware):
             response = await self.handle_auth_request(request)
             
             # Add CORS headers to auth responses
-            response.headers["Access-Control-Allow-Origin"] = "http://localhost:3000"
+            response.headers["Access-Control-Allow-Origin"] = website_domain
             response.headers["Access-Control-Allow-Credentials"] = "true"
             return response
         
@@ -310,8 +313,9 @@ async def google_callback(code: str = None, error: str = None, state: str = None
     logging.info(f"Request headers: {request.headers if request else 'No request object'}")
     
     # Add CORS headers for direct API calls
+    website_domain = os.environ.get("WEBSITE_DOMAIN", "http://localhost:3000")
     headers = {
-        "Access-Control-Allow-Origin": "http://localhost:3000",
+        "Access-Control-Allow-Origin": website_domain,
         "Access-Control-Allow-Credentials": "true",
         "Access-Control-Allow-Headers": "Content-Type, Authorization, X-API-Key, fdi-version, st-auth-mode, rid, anti-csrf",
         "Access-Control-Expose-Headers": "Content-Type, Authorization, anti-csrf"
