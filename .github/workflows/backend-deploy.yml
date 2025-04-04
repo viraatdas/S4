@@ -36,6 +36,16 @@ jobs:
           aws ecr describe-repositories --repository-names s4-backend || \
           aws ecr create-repository --repository-name s4-backend
 
+      - name: Create AWS SSM Parameters for Secrets
+        run: |
+          # Create SSM parameters for secrets
+          aws ssm put-parameter --name "/s4/AWS_ACCESS_KEY_ID" --value "${{ secrets.AWS_ACCESS_KEY_ID }}" --type "SecureString" --overwrite
+          aws ssm put-parameter --name "/s4/AWS_SECRET_ACCESS_KEY" --value "${{ secrets.AWS_SECRET_ACCESS_KEY }}" --type "SecureString" --overwrite
+          aws ssm put-parameter --name "/s4/OPENAI_API_KEY" --value "${{ secrets.OPENAI_API_KEY }}" --type "SecureString" --overwrite
+          aws ssm put-parameter --name "/s4/S4_ADMIN_API_KEY" --value "${{ secrets.S4_ADMIN_API_KEY }}" --type "SecureString" --overwrite
+          aws ssm put-parameter --name "/s4/SUPERTOKENS_CONNECTION_URI" --value "${{ secrets.SUPERTOKENS_CONNECTION_URI }}" --type "SecureString" --overwrite
+          aws ssm put-parameter --name "/s4/SUPERTOKENS_API_KEY" --value "${{ secrets.SUPERTOKENS_API_KEY }}" --type "SecureString" --overwrite
+
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
         env:
@@ -43,6 +53,29 @@ jobs:
           ECR_REPOSITORY: s4-backend
           IMAGE_TAG: ${{ github.sha }}
         run: |
+          # Create .env file for Docker build with placeholder values
+          cat > .env << EOL
+          AWS_ACCESS_KEY_ID=placeholder
+          AWS_SECRET_ACCESS_KEY=placeholder
+          AWS_DEFAULT_REGION=us-east-1
+          S4_S3_BUCKET=s4-storage-prod
+          S4_S3_REGION=us-east-1
+          OPENAI_API_KEY=placeholder
+          S4_DISABLE_API_AUTH=false
+          S4_ADMIN_API_KEY=placeholder
+          S4_API_HOST=0.0.0.0
+          S4_API_PORT=8000
+          S4_CORS_ORIGINS=*
+          S4_DEBUG=false
+          S4_DATA_DIR=~/.s4
+          S4_EMBEDDING_MODEL=text-embedding-3-small
+          GOOGLE_CLIENT_ID=placeholder
+          GOOGLE_CLIENT_SECRET=placeholder
+          SUPERTOKENS_CONNECTION_URI=placeholder
+          SUPERTOKENS_API_KEY=placeholder
+          EOL
+          
+          # Build and push Docker image
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
             -f deployment/docker/Dockerfile .
