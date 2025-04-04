@@ -68,35 +68,35 @@
       "secrets": [
         {
           "name": "AWS_ACCESS_KEY_ID",
-          "valueFrom": "${AWS_SSM_PATH_PREFIX}/AWS_ACCESS_KEY_ID"
+          "valueFrom": "/s4/AWS_ACCESS_KEY_ID"
         },
         {
           "name": "AWS_SECRET_ACCESS_KEY",
-          "valueFrom": "${AWS_SSM_PATH_PREFIX}/AWS_SECRET_ACCESS_KEY"
+          "valueFrom": "/s4/AWS_SECRET_ACCESS_KEY"
         },
         {
           "name": "OPENAI_API_KEY",
-          "valueFrom": "${AWS_SSM_PATH_PREFIX}/OPENAI_API_KEY"
+          "valueFrom": "/s4/OPENAI_API_KEY"
         },
         {
           "name": "S4_ADMIN_API_KEY",
-          "valueFrom": "${AWS_SSM_PATH_PREFIX}/S4_ADMIN_API_KEY"
+          "valueFrom": "/s4/S4_ADMIN_API_KEY"
         },
         {
           "name": "SUPERTOKENS_CONNECTION_URI",
-          "valueFrom": "${AWS_SSM_PATH_PREFIX}/SUPERTOKENS_CONNECTION_URI"
+          "valueFrom": "/s4/SUPERTOKENS_CONNECTION_URI"
         },
         {
           "name": "SUPERTOKENS_API_KEY",
-          "valueFrom": "${AWS_SSM_PATH_PREFIX}/SUPERTOKENS_API_KEY"
+          "valueFrom": "/s4/SUPERTOKENS_API_KEY"
         },
         {
           "name": "GOOGLE_CLIENT_ID",
-          "valueFrom": "${AWS_SSM_PATH_PREFIX}/GOOGLE_CLIENT_ID"
+          "valueFrom": "/s4/GOOGLE_CLIENT_ID"
         },
         {
           "name": "GOOGLE_CLIENT_SECRET",
-          "valueFrom": "${AWS_SSM_PATH_PREFIX}/GOOGLE_CLIENT_SECRET"
+          "valueFrom": "/s4/GOOGLE_CLIENT_SECRET"
         }
       ],
       "logConfiguration": {
