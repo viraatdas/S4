@@ -8,7 +8,7 @@ import {
   FaUserPlus, /* FaPen, */ FaTrash, /* FaSignOutAlt, 
   FaUsersCog, FaExclamationTriangle, FaSyncAlt, */ FaEdit, FaKey, FaClipboard, FaSearch, FaFilter /* FaEllipsisV */
 } from 'react-icons/fa';
-import * as Yup from 'yup';
+// import * as Yup from 'yup';
 // import API from '../services/api';
 import AdminSidebar from '../components/AdminSidebar';
 import '../styles/admin.css';
@@ -53,7 +53,7 @@ const AdminDashboardPage = () => {
   
   // State for delete confirmation
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [tenantToDelete, /* setTenantToDelete */] = useState(null);
+  /* const [tenantToDelete, setTenantToDelete] = useState(null); */
   // const [deleteLoading, setDeleteLoading] = useState(false);
   
   // State for search and filters
@@ -150,7 +150,7 @@ const AdminDashboardPage = () => {
   
   // Handle form input change
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    // const { name, value } = e.target;
     // setFormValues(prev => ({
     //   ...prev,
     //   [name]: value
@@ -989,4 +989,4 @@ const AdminDashboardPage = () => {
   );
 };
 
-export default AdminDashboardPage;                            
+export default AdminDashboardPage;                                  

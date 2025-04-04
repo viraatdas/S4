@@ -1,16 +1,16 @@
-import React, { useState, useContext } from 'react';
+import React, { useState /* useContext */ } from 'react';
 import { Link /* useNavigate */ } from 'react-router-dom';
 import { Alert, Container, Row, Col, Spinner, Badge } from 'react-bootstrap';
 // import API from '../services/api';
 import { FaGoogle, FaArrowLeft } from 'react-icons/fa';
-import { AuthContext } from '../App';
+// import { AuthContext } from '../App';
 import '../styles/auth.css';
 
 // Google OAuth credentials from environment variables
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
 
 const LoginPage = () => {
-  const auth = useContext(AuthContext); // Access context without destructuring
+  // const auth = useContext(AuthContext); // Access context without destructuring
   // const navigate = useNavigate();
   const [error /* setError */] = useState('');
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -125,4 +125,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;          
+export default LoginPage;                
