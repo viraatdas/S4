@@ -9,7 +9,7 @@ import {
   FaUsersCog, FaExclamationTriangle, FaSyncAlt, */ FaEdit, FaKey, FaClipboard, FaSearch, FaFilter /* FaEllipsisV */
 } from 'react-icons/fa';
 import * as Yup from 'yup';
-import API from '../services/api';
+// import API from '../services/api';
 import AdminSidebar from '../components/AdminSidebar';
 import '../styles/admin.css';
 
@@ -42,18 +42,18 @@ const AdminDashboardPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState('create'); // 'create' or 'edit'
   const [currentTenant, setCurrentTenant] = useState(null);
-  const [formValues, setFormValues] = useState({
-    name: '',
-    email: '',
-    company: '',
-    plan_id: 'basic'
-  });
+  // const [formValues, setFormValues] = useState({
+  //   name: '',
+  //   email: '',
+  //   company: '',
+  //   plan_id: 'basic'
+  // });
   const [formErrors, setFormErrors] = useState({});
-  const [modalLoading, setModalLoading] = useState(false);
+  const [modalLoading, /* setModalLoading */] = useState(false);
   
   // State for delete confirmation
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [tenantToDelete, setTenantToDelete] = useState(null);
+  const [tenantToDelete, /* setTenantToDelete */] = useState(null);
   // const [deleteLoading, setDeleteLoading] = useState(false);
   
   // State for search and filters
@@ -74,12 +74,12 @@ const AdminDashboardPage = () => {
   const [successMessage, setSuccessMessage] = useState('');
   
   // Validation schema for tenant form
-  const tenantSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
-    email: Yup.string().email('Invalid email').required('Email is required'),
-    company: Yup.string(),
-    plan_id: Yup.string().required('Plan is required')
-  });
+  // const tenantSchema = Yup.object().shape({
+  //   name: Yup.string().required('Name is required'),
+  //   email: Yup.string().email('Invalid email').required('Email is required'),
+  //   company: Yup.string(),
+  //   plan_id: Yup.string().required('Plan is required')
+  // });
   
   // Check if admin is logged in
   useEffect(() => {
@@ -989,4 +989,4 @@ const AdminDashboardPage = () => {
   );
 };
 
-export default AdminDashboardPage;            
+export default AdminDashboardPage;                      

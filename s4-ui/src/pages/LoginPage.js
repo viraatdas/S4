@@ -10,7 +10,7 @@ import '../styles/auth.css';
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
 
 const LoginPage = () => {
-  const { /* handleLogin */ } = useContext(AuthContext);
+  const auth = useContext(AuthContext); // Access context without destructuring
   // const navigate = useNavigate();
   const [error /* setError */] = useState('');
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -125,4 +125,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;        
+export default LoginPage;          
