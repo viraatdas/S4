@@ -346,8 +346,8 @@ async def google_callback(code: str = None, error: str = None, state: str = None
             if request and request.url and str(request.url).startswith("http://localhost:8000"):
                 redirect_uri = f"{os.environ.get('API_URL', 'http://localhost:8000')}/auth/callback/google"
             else:
-                # Default for requests coming from the frontend
-                redirect_uri = REDIRECT_URI
+                # Use this redirect URI for production
+                redirect_uri = f"{os.environ.get('API_URL', 'https://production.eba-ermuim2e.us-east-1.elasticbeanstalk.com')}/auth/callback/google"
         
         logging.info(f"Using redirect_uri: {redirect_uri}")
         

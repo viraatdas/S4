@@ -78,10 +78,13 @@ const OAuthCallbackPage = () => {
         
         // Forward the authorization code to our backend
         const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-        const backendUrl = `${apiUrl}/auth/callback/google?code=${code}`;
+        const websiteDomain = process.env.REACT_APP_WEBSITE_DOMAIN || 'http://localhost:3000';
+        const currentRedirectUri = `${websiteDomain}/auth/callback/google`;
+        const backendUrl = `${apiUrl}/auth/callback/google?code=${code}&redirect_uri=${encodeURIComponent(currentRedirectUri)}`;
         
         console.log('OAuthCallbackPage: Forwarding code to backend:', {
-          backendUrl: backendUrl.replace(code, code.substring(0, 10) + '...')
+          backendUrl: backendUrl.replace(code, code.substring(0, 10) + '...'),
+          redirectUri: currentRedirectUri
         });
         
         // Redirect to the backend URL with the code
