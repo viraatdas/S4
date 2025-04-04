@@ -1,6 +1,7 @@
 {
   "family": "s4-backend",
   "executionRoleArn": "arn:aws:iam::aws:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::aws:role/ecsTaskExecutionRole",
   "networkMode": "awsvpc",
   "containerDefinitions": [
     {
