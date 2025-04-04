@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link /* useNavigate */ } from 'react-router-dom';
 import { Alert, Container, Row, Col, Spinner, Badge } from 'react-bootstrap';
-import API from '../services/api';
+// import API from '../services/api';
 import { FaGoogle, FaArrowLeft } from 'react-icons/fa';
 import { AuthContext } from '../App';
 import '../styles/auth.css';
@@ -10,9 +10,9 @@ import '../styles/auth.css';
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
 
 const LoginPage = () => {
-  const { handleLogin } = useContext(AuthContext);
-  const navigate = useNavigate();
-  const [error, setError] = useState('');
+  const { /* handleLogin */ } = useContext(AuthContext);
+  // const navigate = useNavigate();
+  const [error /* setError */] = useState('');
   const [googleLoading, setGoogleLoading] = useState(false);
 
   // Handle Google login
@@ -108,7 +108,7 @@ const LoginPage = () => {
 
               <div className="login-info">
                 <p className="text-center text-muted mt-4 small">
-                  By continuing, you agree to S4's <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+                  By continuing, you agree to S4's <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>
                 </p>
               </div>
               
@@ -125,4 +125,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;  
+export default LoginPage;        

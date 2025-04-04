@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Container, Spinner, Alert } from 'react-bootstrap';
 import { AuthContext } from '../App';
-import API from '../services/api';
+// import API from '../services/api';
 import '../styles/auth.css';
 
 // Google OAuth credentials from environment variables
@@ -14,11 +14,11 @@ const OAuthCallbackPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
+  // const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const handleGoogleCallback = async () => {
-      setIsLoading(true);
+      // setIsLoading(true);
       console.log('OAuthCallbackPage: Handling Google callback');
       console.log('Current URL:', window.location.href);
       
@@ -62,14 +62,14 @@ const OAuthCallbackPage = () => {
       if (error) {
         console.error('OAuthCallbackPage: Authentication error:', error);
         setError(`Authentication failed: ${error}`);
-        setIsLoading(false);
+        // setIsLoading(false);
         return;
       }
       
       if (!code) {
         console.error('OAuthCallbackPage: Missing authorization code');
         setError('Invalid callback URL. Missing authorization code.');
-        setIsLoading(false);
+        // setIsLoading(false);
         return;
       }
       
@@ -180,7 +180,7 @@ const OAuthCallbackPage = () => {
         // No fallback needed anymore since we're handling the OAuth flow directly
         console.error('OAuthCallbackPage: Authentication error:', err);
         setError('Failed to authenticate with Google. Please try again.');
-        setIsLoading(false);
+        // setIsLoading(false);
       }
     };
     
@@ -228,4 +228,4 @@ const OAuthCallbackPage = () => {
   );
 };
 
-export default OAuthCallbackPage;  
+export default OAuthCallbackPage;              

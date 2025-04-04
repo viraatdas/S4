@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Button, Form, Alert, Spinner, Modal, Table } from 'react-bootstrap';
+import { Container, /* Row, Col, */ Card, Button, Form, Alert, Spinner, Modal, Table } from 'react-bootstrap';
 import { FaUpload, FaFileAlt, FaTrash, FaExclamationTriangle } from 'react-icons/fa';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -313,4 +313,4 @@ const DocumentsPage = ({ authKey }) => {
   );
 };
 
-export default DocumentsPage; 
+export default DocumentsPage;  

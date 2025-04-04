@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Container, Row, Col, Card, Button, Table, 
-  Badge, Spinner, Alert, Modal, Form, Tabs, Tab 
+  Badge, Spinner, Alert, Modal, Form
 } from 'react-bootstrap';
 import { 
-  FaUserPlus, FaPen, FaTrash, FaSignOutAlt, 
-  FaUsersCog, FaExclamationTriangle, FaSyncAlt, FaEdit, FaKey, FaClipboard, FaSearch, FaFilter, FaEllipsisV
+  FaUserPlus, /* FaPen, */ FaTrash, /* FaSignOutAlt, 
+  FaUsersCog, FaExclamationTriangle, FaSyncAlt, */ FaEdit, FaKey, FaClipboard, FaSearch, FaFilter /* FaEllipsisV */
 } from 'react-icons/fa';
 import * as Yup from 'yup';
 import API from '../services/api';
@@ -36,7 +36,7 @@ const AdminDashboardPage = () => {
   const [tenants, setTenants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  // const [refreshTrigger, setRefreshTrigger] = useState(0);
   
   // State for tenant create/edit modal
   const [showModal, setShowModal] = useState(false);
@@ -54,7 +54,7 @@ const AdminDashboardPage = () => {
   // State for delete confirmation
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [tenantToDelete, setTenantToDelete] = useState(null);
-  const [deleteLoading, setDeleteLoading] = useState(false);
+  // const [deleteLoading, setDeleteLoading] = useState(false);
   
   // State for search and filters
   const [searchTerm, setSearchTerm] = useState('');
@@ -122,17 +122,17 @@ const AdminDashboardPage = () => {
   }, [navigate]);
   
   // Initialize modal for creating a tenant
-  const handleCreateTenant = () => {
-    setFormValues({
-      name: '',
-      email: '',
-      company: '',
-      plan_id: 'basic'
-    });
-    setFormErrors({});
-    setModalMode('create');
-    setShowModal(true);
-  };
+  // const handleCreateTenant = () => {
+  //   setFormValues({
+  //     name: '',
+  //     email: '',
+  //     company: '',
+  //     plan_id: 'basic'
+  //   });
+  //   setFormErrors({});
+  //   setModalMode('create');
+  //   setShowModal(true);
+  // };
   
   // Initialize modal for editing a tenant
   const handleEditTenant = (tenant) => {
@@ -158,45 +158,45 @@ const AdminDashboardPage = () => {
   };
   
   // Submit tenant form (create or update)
-  const handleSubmitTenant = async (e) => {
-    e.preventDefault();
-    
-    try {
-      setModalLoading(true);
-      
-      // Validate form
-      await tenantSchema.validate(formValues, { abortEarly: false });
-      
-      if (modalMode === 'create') {
-        // Create new tenant
-        await API.createTenant(formValues);
-      } else {
-        // Update existing tenant
-        await API.updateTenant(currentTenant.id, formValues);
-      }
-      
-      // Close modal and refresh list
-      setShowModal(false);
-      setRefreshTrigger(prev => prev + 1);
-    } catch (err) {
-      console.error('Tenant form error:', err);
-      
-      if (err.name === 'ValidationError') {
-        // Yup validation error
-        const errors = {};
-        err.inner.forEach(e => {
-          errors[e.path] = e.message;
-        });
-        setFormErrors(errors);
-      } else if (err.response && err.response.data && err.response.data.detail) {
-        setError(err.response.data.detail);
-      } else {
-        setError('Failed to save tenant. Please try again.');
-      }
-    } finally {
-      setModalLoading(false);
-    }
-  };
+  // const handleSubmitTenant = async (e) => {
+  //   e.preventDefault();
+  //   
+  //   try {
+  //     setModalLoading(true);
+  //     
+  //     // Validate form
+  //     await tenantSchema.validate(formValues, { abortEarly: false });
+  //     
+  //     if (modalMode === 'create') {
+  //       // Create new tenant
+  //       await API.createTenant(formValues);
+  //     } else {
+  //       // Update existing tenant
+  //       await API.updateTenant(currentTenant.id, formValues);
+  //     }
+  //     
+  //     // Close modal and refresh list
+  //     setShowModal(false);
+  //     setRefreshTrigger(prev => prev + 1);
+  //   } catch (err) {
+  //     console.error('Tenant form error:', err);
+  //     
+  //     if (err.name === 'ValidationError') {
+  //       // Yup validation error
+  //       const errors = {};
+  //       err.inner.forEach(e => {
+  //         errors[e.path] = e.message;
+  //       });
+  //       setFormErrors(errors);
+  //     } else if (err.response && err.response.data && err.response.data.detail) {
+  //       setError(err.response.data.detail);
+  //     } else {
+  //       setError('Failed to save tenant. Please try again.');
+  //     }
+  //   } finally {
+  //     setModalLoading(false);
+  //   }
+  // };
   
   // Initialize delete confirmation
   const handleDeleteConfirmation = (tenant) => {
@@ -205,24 +205,24 @@ const AdminDashboardPage = () => {
   };
   
   // Delete tenant
-  const handleDeleteTenant = async () => {
-    if (!tenantToDelete) return;
-    
-    try {
-      setDeleteLoading(true);
-      await API.deleteTenant(tenantToDelete.id);
-      
-      // Close modal and refresh list
-      setShowDeleteModal(false);
-      setTenantToDelete(null);
-      setRefreshTrigger(prev => prev + 1);
-    } catch (err) {
-      console.error('Error deleting tenant:', err);
-      setError('Failed to delete tenant. Please try again.');
-    } finally {
-      setDeleteLoading(false);
-    }
-  };
+  // const handleDeleteTenant = async () => {
+  //   if (!tenantToDelete) return;
+  //   
+  //   try {
+  //     setDeleteLoading(true);
+  //     await API.deleteTenant(tenantToDelete.id);
+  //     
+  //     // Close modal and refresh list
+  //     setShowDeleteModal(false);
+  //     setTenantToDelete(null);
+  //     setRefreshTrigger(prev => prev + 1);
+  //   } catch (err) {
+  //     console.error('Error deleting tenant:', err);
+  //     setError('Failed to delete tenant. Please try again.');
+  //   } finally {
+  //     setDeleteLoading(false);
+  //   }
+  // };
   
   // Handle admin logout
   const handleLogout = () => {
@@ -989,4 +989,4 @@ const AdminDashboardPage = () => {
   );
 };
 
-export default AdminDashboardPage; 
+export default AdminDashboardPage;            

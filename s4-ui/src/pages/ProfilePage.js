@@ -2,19 +2,19 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Container, Row, Col, Card, Button, Form, 
-  Spinner, Alert, Badge, Tab, Tabs, ListGroup
+  Spinner, Alert, Badge, Tab, Tabs /* ListGroup */
 } from 'react-bootstrap';
 import { 
   FaUser, FaEnvelope, FaBuilding, FaEdit, 
   FaSave, FaKey, FaEye, FaEyeSlash, FaCloudDownloadAlt,
-  FaArrowLeft, FaDatabase, FaFileAlt, FaSearch, FaLock
+  FaArrowLeft, FaDatabase, FaFileAlt, FaSearch /* FaLock */
 } from 'react-icons/fa';
 import { AuthContext } from '../App';
 import API from '../services/api';
 import Navbar from '../components/Navbar';
 
 const ProfilePage = () => {
-  const { user, handleLogout } = useContext(AuthContext);
+  const { user, /* handleLogout */ } = useContext(AuthContext);
   const navigate = useNavigate();
   
   const [editMode, setEditMode] = useState(false);
@@ -23,7 +23,7 @@ const ProfilePage = () => {
   const [success, setSuccess] = useState('');
   const [usageData, setUsageData] = useState(null);
   const [loadingUsage, setLoadingUsage] = useState(false);
-  const [apiKeyVisible, setApiKeyVisible] = useState(false);
+  // const [apiKeyVisible, setApiKeyVisible] = useState(false);
   const [billingHistory, setBillingHistory] = useState([]);
   const [loadingBilling, setLoadingBilling] = useState(false);
   
@@ -36,9 +36,9 @@ const ProfilePage = () => {
     phone: ''
   });
   
-  const [apiKey, setApiKey] = useState('');
+  const [apiKey /* setApiKey */] = useState('');
   const [showApiKey, setShowApiKey] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+  // const [isSaving, setIsSaving] = useState(false);
   
   // Initialize profile with user data
   useEffect(() => {
@@ -124,16 +124,16 @@ const ProfilePage = () => {
     });
   };
   
-  const getUsagePercentage = (used, limit) => {
-    if (!used || !limit) return 0;
-    return Math.min(Math.round((used / limit) * 100), 100);
-  };
+  // const getUsagePercentage = (used, limit) => {
+  //   if (!used || !limit) return 0;
+  //   return Math.min(Math.round((used / limit) * 100), 100);
+  // };
   
-  const getUsageVariant = (percentage) => {
-    if (percentage < 50) return 'success';
-    if (percentage < 75) return 'warning';
-    return 'danger';
-  };
+  // const getUsageVariant = (percentage) => {
+  //   if (percentage < 50) return 'success';
+  //   if (percentage < 75) return 'warning';
+  //   return 'danger';
+  // };
   
   return (
     <>
@@ -504,4 +504,4 @@ const ProfilePage = () => {
   );
 };
 
-export default ProfilePage; 
+export default ProfilePage;        
