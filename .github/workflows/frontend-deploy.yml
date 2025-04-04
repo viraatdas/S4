@@ -39,7 +39,7 @@ jobs:
       - name: Create production environment file
         working-directory: s4-ui
         run: |
-          cat > .env.production << EOL
+          cat > .env.production << 'EOL'
 # API URL (required)
 REACT_APP_API_URL=https://api.s4-storage.com
 
