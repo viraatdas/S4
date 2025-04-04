@@ -5,7 +5,7 @@ S4 is a fully-featured semantic search service with multi-tenant support, design
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Frontend: AWS Amplify](https://img.shields.io/badge/Frontend-AWS%20Amplify-orange)](docs/deployment/aws.md)
 [![Backend: AWS ECS](https://img.shields.io/badge/Backend-AWS%20ECS-yellow)](docs/deployment/aws.md)
-[![Frontend Build](https://img.shields.io/badge/Frontend%20Build-passing-brightgreen)](https://app.s4-storage.com)
+[![Frontend Build](https://img.shields.io/badge/Frontend%20Build-passing-brightgreen)](https://d3g0apb64xkgiu.amplifyapp.com)
 [![Backend Build](https://img.shields.io/badge/Backend%20Build-passing-brightgreen)](https://api.s4-storage.com)
 
 ## Features
