@@ -160,7 +160,7 @@ const Navbar = () => {
                       <div className="user-avatar" aria-label="User profile">
                         {getUserInitials()}
                       </div>
-                      <span className="dropdown-arrow">▼</span>
+                      <span className="dropdown-arrow" style={{ marginLeft: '4px', fontSize: '10px', verticalAlign: 'middle' }}>▼</span>
                     </div>
                   } 
                   id="user-dropdown" 
@@ -222,4 +222,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;  
+export default Navbar;    
