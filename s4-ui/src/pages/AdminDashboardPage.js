@@ -137,12 +137,12 @@ const AdminDashboardPage = () => {
   // Initialize modal for editing a tenant
   const handleEditTenant = (tenant) => {
     setCurrentTenant(tenant);
-    setFormValues({
-      name: tenant.name,
-      email: tenant.email,
-      company: tenant.company || '',
-      plan_id: tenant.plan.id
-    });
+    // setFormValues({
+    //   name: tenant.name,
+    //   email: tenant.email,
+    //   company: tenant.company || '',
+    //   plan_id: tenant.plan.id
+    // });
     setFormErrors({});
     setModalMode('edit');
     setShowModal(true);
@@ -151,10 +151,10 @@ const AdminDashboardPage = () => {
   // Handle form input change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormValues(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    // setFormValues(prev => ({
+    //   ...prev,
+    //   [name]: value
+    // }));
   };
   
   // Submit tenant form (create or update)
@@ -200,7 +200,7 @@ const AdminDashboardPage = () => {
   
   // Initialize delete confirmation
   const handleDeleteConfirmation = (tenant) => {
-    setTenantToDelete(tenant);
+    // setTenantToDelete(tenant);
     setShowDeleteModal(true);
   };
   
@@ -989,4 +989,4 @@ const AdminDashboardPage = () => {
   );
 };
 
-export default AdminDashboardPage;                      
+export default AdminDashboardPage;                            
