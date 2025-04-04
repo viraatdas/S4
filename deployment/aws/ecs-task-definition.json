@@ -1,12 +1,12 @@
 {
   "family": "s4-backend",
-  "executionRoleArn": "${AWS_EXECUTION_ROLE_ARN}",
-  "taskRoleArn": "${AWS_TASK_ROLE_ARN}",
+  "executionRoleArn": "arn:aws:iam::597088032164:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::597088032164:role/ecsTaskRole",
   "networkMode": "awsvpc",
   "containerDefinitions": [
     {
       "name": "s4-backend",
-      "image": "${ECR_REPOSITORY_URI}:latest",
+      "image": "597088032164.dkr.ecr.us-east-1.amazonaws.com/s4-backend:latest",
       "essential": true,
       "portMappings": [
         {
