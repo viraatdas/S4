@@ -39,26 +39,17 @@ jobs:
       - name: Create production environment file
         working-directory: s4-ui
         run: |
-          cat > .env.production << 'EOL'
-# API URL (required)
-REACT_APP_API_URL=https://api.s4-storage.com
-
-# Website URL (required for authentication)
-REACT_APP_WEBSITE_DOMAIN=https://app.s4-storage.com
-
-# Environment
-REACT_APP_ENV=production
-
-# SuperTokens Configuration
-REACT_APP_SUPERTOKENS_CONNECTION_URI="${{ secrets.SUPERTOKENS_CONNECTION_URI }}"
-REACT_APP_SUPERTOKENS_API_KEY="${{ secrets.SUPERTOKENS_API_KEY }}"
-REACT_APP_GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}"
-REACT_APP_GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}"
-
-# Optional Settings
-REACT_APP_ENABLE_ANALYTICS=true
-REACT_APP_FILE_SIZE_LIMIT=10485760
-EOL
+          # Create environment file with individual echo commands
+          touch .env.production
+          echo 'REACT_APP_API_URL=${{ secrets.AMPLIFY_URL || ''https://d3g0apb64xkgiu.amplifyapp.com'' }}' >> .env.production
+          echo 'REACT_APP_WEBSITE_DOMAIN=${{ secrets.AMPLIFY_URL || ''https://d3g0apb64xkgiu.amplifyapp.com'' }}' >> .env.production
+          echo 'REACT_APP_ENV=production' >> .env.production
+          echo 'REACT_APP_SUPERTOKENS_CONNECTION_URI=${{ secrets.SUPERTOKENS_CONNECTION_URI }}' >> .env.production
+          echo 'REACT_APP_SUPERTOKENS_API_KEY=${{ secrets.SUPERTOKENS_API_KEY }}' >> .env.production
+          echo 'REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}' >> .env.production
+          echo 'REACT_APP_GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}' >> .env.production
+          echo 'REACT_APP_ENABLE_ANALYTICS=true' >> .env.production
+          echo 'REACT_APP_FILE_SIZE_LIMIT=10485760' >> .env.production
           cp .env.production .env
           echo "Build timestamp: $(date)" >> .env
 
